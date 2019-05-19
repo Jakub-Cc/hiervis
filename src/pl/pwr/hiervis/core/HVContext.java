@@ -17,7 +17,7 @@ import basic_hierarchy.common.HierarchyBuilder;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.DimensionReductionManager;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.HierarchyLoaderThread;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
@@ -65,7 +65,7 @@ public class HVContext {
     public final Event<HVConfig> configChanged = new Event<>();
 
     /** Sent when dimension method is performed. */
-    public final Event<DimensionReduction> dimensionReductionCalculating = new Event<DimensionReduction>();
+    public final Event<FeatureExtraction> dimensionReductionCalculating = new Event<FeatureExtraction>();
     /** Sent when dimension method is done calculating. */
     public final Event<CalculatedDimensionReduction> dimensionReductionCalculated = new Event<CalculatedDimensionReduction>();
     /** Sent when dimension method is selected. */
@@ -109,8 +109,8 @@ public class HVContext {
     }
 
     /**
-     * @return true if there is hierarchy data available (ie. has been loaded),
-     *         false otherwise.
+     * @return true if there is hierarchy data available (ie. has been loaded), false
+     *         otherwise.
      */
     public boolean isHierarchyDataLoaded() {
 	return currentHierarchy != null;
@@ -147,9 +147,8 @@ public class HVContext {
 		    hierarchyChanged.broadcast(hierarchy);
 		}
 		else {
-		    SwingUIUtils.executeAsyncWithWaitWindow(null, "Processing hierarchy data...", log, true,
-			    () -> hierarchy.processHierarchy(config), () -> hierarchyChanged.broadcast(hierarchy),
-			    null);
+		    SwingUIUtils.executeAsyncWithWaitWindow(null, "Processing hierarchy data...", log, true, () -> hierarchy.processHierarchy(config),
+			    () -> hierarchyChanged.broadcast(hierarchy), null);
 		}
 	    }
 	}
@@ -176,8 +175,7 @@ public class HVContext {
 	    throw new IllegalArgumentException("Wrapper must not be null.");
 	}
 	if (currentHKWrapper != null) {
-	    throw new IllegalStateException(
-		    "Cannot set current wrapper, because the old one has not been disposed of yet.");
+	    throw new IllegalStateException("Cannot set current wrapper, because the old one has not been disposed of yet.");
 	}
 
 	currentHKWrapper = wrapper;
@@ -233,9 +231,9 @@ public class HVContext {
     /**
      * Loads the specified file as a CSV file describing a {@link Hierarchy} object.
      * 
-     * @param window a window, used to anchor dialog windows with file loading
-     *               options / error messages. Typically this is the window from
-     *               which the loading command was issued.
+     * @param window a window, used to anchor dialog windows with file loading options / error
+     *               messages. Typically this is the window from which the loading command was
+     *               issued.
      * @param file   the file to load
      */
     public void loadFile(Window window, File file) {
@@ -244,12 +242,14 @@ public class HVContext {
 	LoadedHierarchy.Options options = null;
 	try {
 	    options = LoadedHierarchy.Options.detect(file);
-	} catch (IOException e) {
+	}
+	catch (IOException e) {
 	    // Something went wrong, just roll with previous options.
 	    options = getHierarchyOptions();
 	}
 
 	FileLoadingOptionsDialog optionsDialog = new FileLoadingOptionsDialog(this, window, options);
+	optionsDialog.setTitle(optionsDialog.getTitle() + " ( " + file.getName() + " )");
 	optionsDialog.setLocationRelativeTo(window);
 	optionsDialog.setVisible(true);
 
@@ -263,40 +263,38 @@ public class HVContext {
     }
 
     /**
-     * Same as {@link #loadFile(Window, File)}, except this method allows to specify
-     * different options to use while loading this file.
+     * Same as {@link #loadFile(Window, File)}, except this method allows to specify different
+     * options to use while loading this file.
      * 
-     * @param window          a window, used to anchor dialog windows with file
-     *                        loading options / error messages. Typically this is
-     *                        the window from which the loading command was issued.
+     * @param window          a window, used to anchor dialog windows with file loading
+     *                        options / error messages. Typically this is the window from
+     *                        which the loading command was issued.
      * @param file            the file to load
-     * @param hasInstanceName if true, the reader will assume that the file includes
-     *                        a column containing instance names
-     * @param hasTrueClass    if true, the reader will assume that the file includes
-     *                        a column containing true class
-     * @param hasHeader       if true, the reader will assume that the first row
-     *                        contains column headers, specifying the name for each
-     *                        column
-     * @param fillBreadth     if true, the {@link HierarchyBuilder} will attempt to
-     *                        fix the raw hierarchy built from the file.
-     * @param useSubtree      whether the centroid calculation should also include
-     *                        child groups' instances.
+     * @param hasInstanceName if true, the reader will assume that the file includes a column
+     *                        containing instance names
+     * @param hasTrueClass    if true, the reader will assume that the file includes a column
+     *                        containing true class
+     * @param hasHeader       if true, the reader will assume that the first row contains
+     *                        column headers, specifying the name for each column
+     * @param fillBreadth     if true, the {@link HierarchyBuilder} will attempt to fix the
+     *                        raw hierarchy built from the file.
+     * @param useSubtree      whether the centroid calculation should also include child
+     *                        groups' instances.
      */
-    public void loadFile(Window window, File file, boolean hasInstanceName, boolean hasTrueClass, boolean hasHeader,
-	    boolean fillBreadth, boolean useSubtree) {
-	LoadedHierarchy.Options options = new LoadedHierarchy.Options(hasInstanceName, hasTrueClass, hasHeader,
-		fillBreadth, useSubtree);
+    public void loadFile(Window window, File file, boolean hasInstanceName, boolean hasTrueClass, boolean hasHeader, boolean fillBreadth,
+	    boolean useSubtree) {
+	LoadedHierarchy.Options options = new LoadedHierarchy.Options(hasInstanceName, hasTrueClass, hasHeader, fillBreadth, useSubtree);
 
 	loadFile(window, file, options);
     }
 
     /**
-     * Same as {@link #loadFile(Window, File)}, except this method allows to specify
-     * different options to use while loading this file.
+     * Same as {@link #loadFile(Window, File)}, except this method allows to specify different
+     * options to use while loading this file.
      * 
-     * @param window  a window, used to anchor dialog windows with file loading
-     *                options / error messages. Typically this is the window from
-     *                which the loading command was issued.
+     * @param window  a window, used to anchor dialog windows with file loading options /
+     *                error messages. Typically this is the window from which the loading
+     *                command was issued.
      * @param file    the file to load
      * @param options the options to use with the specified file
      */
@@ -326,8 +324,7 @@ public class HVContext {
     }
 
     /**
-     * Loads the specified hierarchy and creates a new tab for it with the specified
-     * name
+     * Loads the specified hierarchy and creates a new tab for it with the specified name
      * 
      * @param tabName   the name of the tab in the GUI
      * @param hierarchy the hierarchy to load and associate with the tab
@@ -352,10 +349,8 @@ public class HVContext {
 
     private void onFileError(Exception ex) {
 	SwingUtilities.invokeLater(() -> {
-	    SwingUIUtils
-		    .showInfoDialog("An error ocurred while loading the specified file. Most often this happens when "
-			    + "incorrect settings were selected for the file in question." + "\n\nError message:\n"
-			    + ex.getMessage());
+	    SwingUIUtils.showInfoDialog("An error ocurred while loading the specified file. Most often this happens when "
+		    + "incorrect settings were selected for the file in question." + "\n\nError message:\n" + ex.getMessage());
 	});
     }
 

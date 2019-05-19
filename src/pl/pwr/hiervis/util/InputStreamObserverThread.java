@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A thread that continually observes and consumes bytes sent down an input stream,
@@ -27,6 +29,7 @@ public class InputStreamObserverThread extends Thread
 
 	private final BufferedReader in;
 	private final boolean close;
+	private final Logger log = LogManager.getLogger("HK++");
 
 	private volatile String message;
 
@@ -67,6 +70,7 @@ public class InputStreamObserverThread extends Thread
 					if ( line != null ) {
 						message = line;
 						messageReceived.broadcast( message );
+						log.trace(message);
 					}
 				}
 			}

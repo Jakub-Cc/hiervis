@@ -14,7 +14,6 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-
 import pl.pwr.hiervis.util.SwingUIUtils;
 
 
@@ -35,7 +34,6 @@ public class OperationProgressFrame extends JDialog
 	private Supplier<Integer> progressCallback;
 	private Supplier<String> statusCallback;
 	private Timer timer;
-
 
 	public OperationProgressFrame( Window owner, String title )
 	{
@@ -66,6 +64,7 @@ public class OperationProgressFrame extends JDialog
 		getContentPane().add( button, builder.anchorCenter().insets( 0, 5, 5, 5 ).position( 0, 2 ).build() );
 
 		SwingUIUtils.addCloseCallback( this, () -> button.doClick() );
+		
 	}
 
 	/**

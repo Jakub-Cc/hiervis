@@ -8,16 +8,17 @@ import org.junit.Test;
 
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.TestCommon;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class TsneTest {
     LoadedHierarchy loadedHierarchy;
-    DimensionReduction dimensionReduction;
+    FeatureExtraction dimensionReduction;
     Hierarchy hierarchy;
 
     @Before
     public void initialize() {
-	dimensionReduction = new Tsne(false, 3, 2, 100, 1, false, 0.5, true, false);
+	dimensionReduction = new Tsne(100, 1, 0.5, false, false, 3, true, false, 2);
 	hierarchy = TestCommon.getTwoTwoGroupsHierarchy();
 	loadedHierarchy = new LoadedHierarchy(hierarchy,
 		new LoadedHierarchy.Options(false, false, false, false, false));
@@ -25,7 +26,7 @@ public class TsneTest {
 
     @Test
     public void testTsneParallel() {
-	dimensionReduction = new Tsne(true, 3, 2, 100, 1, false, 0.5, true, false);
+	dimensionReduction = new Tsne(100, 1, 0.5, true, false, 3, true, false, 2);
 	assertNotEquals(null, dimensionReduction);
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
 	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);

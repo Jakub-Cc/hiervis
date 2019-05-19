@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionRunnerManager {
@@ -21,7 +21,7 @@ public class DimensionReductionRunnerManager {
 	context.dimensionReductionCalculated.addListener(this::onDimensionReductionCalculated);
     }
 
-    public void addTask(LoadedHierarchy loadedHierarchy, DimensionReduction dimensionReduction) {
+    public void addTask(LoadedHierarchy loadedHierarchy, FeatureExtraction dimensionReduction) {
 	DimensionReductionRunner dimensionReductionRunner = new DimensionReductionRunner(loadedHierarchy,
 		dimensionReduction, context.dimensionReductionCalculated);
 	dimensionReductionRunner.start();
@@ -29,7 +29,7 @@ public class DimensionReductionRunnerManager {
     }
 
     public boolean removeTask(LoadedHierarchy loadedHierarchy,
-	    Class<? extends DimensionReduction> dimensionReductionClass) {
+	    Class<? extends FeatureExtraction> dimensionReductionClass) {
 	for (DimensionReductionRunner reductionRunner : taskList) {
 	    if (reductionRunner.isTheSame(loadedHierarchy, dimensionReductionClass)) {
 		taskList.remove(reductionRunner);
@@ -45,7 +45,7 @@ public class DimensionReductionRunnerManager {
     }
 
     public boolean interuptTask(LoadedHierarchy loadedHierarchy,
-	    Class<? extends DimensionReduction> dimensionReductionClass) {
+	    Class<? extends FeatureExtraction> dimensionReductionClass) {
 	for (DimensionReductionRunner reductionRunner : taskList) {
 	    if (reductionRunner.isTheSame(loadedHierarchy, dimensionReductionClass)) {
 		reductionRunner.myInterrupt();

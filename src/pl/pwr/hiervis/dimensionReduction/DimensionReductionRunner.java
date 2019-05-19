@@ -4,17 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.interfaces.Hierarchy;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.Event;
 
 public class DimensionReductionRunner extends Thread {
     private static final Logger log = LogManager.getLogger(DimensionReductionRunner.class);
-    private DimensionReduction dimensionReduction;
+    private FeatureExtraction dimensionReduction;
     private LoadedHierarchy inputLoadedHierarchy;
     private Event<CalculatedDimensionReduction> brodcastEvent;
 
-    public DimensionReductionRunner(LoadedHierarchy loadedHierarchy, DimensionReduction dimensionReduction,
+    public DimensionReductionRunner(LoadedHierarchy loadedHierarchy, FeatureExtraction dimensionReduction,
 	    Event<CalculatedDimensionReduction> brodcastEvent) {
 	inputLoadedHierarchy = loadedHierarchy;
 	this.dimensionReduction = dimensionReduction;
@@ -24,7 +24,7 @@ public class DimensionReductionRunner extends Thread {
     }
 
     public boolean isTheSame(LoadedHierarchy loadedHierarchy,
-	    Class<? extends DimensionReduction> dimensionReductionClass) {
+	    Class<? extends FeatureExtraction> dimensionReductionClass) {
 	return (inputLoadedHierarchy == loadedHierarchy
 		&& this.dimensionReduction.getClass() == dimensionReductionClass);
     }

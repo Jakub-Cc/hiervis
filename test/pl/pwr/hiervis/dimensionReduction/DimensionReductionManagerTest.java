@@ -8,16 +8,16 @@ import org.junit.Test;
 
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.test.TestCommon;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.MultidimensionalScaling;
 import pl.pwr.hiervis.dimensionReduction.methods.StarCoordinates;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionManagerTest {
 
 	DimensionReductionManager dimenisonReductionManager;
 	LoadedHierarchy loadedHierarchy;
-	DimensionReduction dimensionReduction;
+	FeatureExtraction dimensionReduction;
 	Hierarchy hierarchy;
 
 	@Before

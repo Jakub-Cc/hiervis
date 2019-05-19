@@ -1,7 +1,7 @@
 package pl.pwr.hiervis.dimensionReduction;
 
 import basic_hierarchy.interfaces.Hierarchy;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 
 public class HierarchyWraper {
     public Hierarchy hierarchy;
@@ -61,7 +61,7 @@ public class HierarchyWraper {
 	this.reducedHierarchy = reducedHierarchy;
     }
 
-    public Hierarchy getReducedHierarchy(DimensionReduction dimensionReduction) {
+    public Hierarchy getReducedHierarchy(FeatureExtraction dimensionReduction) {
 	int index = dimensionReductionManager.getIndex(dimensionReduction);
 	if (index != -1)
 	    return reducedHierarchy[index];

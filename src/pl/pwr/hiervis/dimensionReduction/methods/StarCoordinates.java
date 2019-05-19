@@ -1,11 +1,18 @@
 package pl.pwr.hiervis.dimensionReduction.methods;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.MatrixUtils;
+import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FunctionParameters;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.HierarchyUtils;
 
-public class StarCoordinates extends DimensionReduction {
+public class StarCoordinates extends FeatureExtraction {
     @Override
     public Hierarchy reduceHierarchy(LoadedHierarchy source) {
 	double[][] matrix = MatrixUtils
@@ -57,5 +64,15 @@ public class StarCoordinates extends DimensionReduction {
 
     public static String sGetDescription() {
 	return "";
+    }
+
+    @Override
+    public List<FunctionParameters> getParameters() {
+	return Collections.emptyList();
+    }
+
+    @Override
+    public DimensionReductionI createInstance(Map<String, Object> parameters) {
+	return new StarCoordinates();
     }
 }

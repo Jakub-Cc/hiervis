@@ -359,11 +359,13 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 		fileDialog.setCurrentDirectory(new File("."));
 		fileDialog.setDialogTitle("Select a file to load");
 		fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileDialog.setMultiSelectionEnabled(true);
 		fileDialog.setAcceptAllFileFilterUsed(false);
 		fileDialog.setFileFilter(new FileNameExtensionFilter("*.csv", "csv"));
 
 		if (fileDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			loadFile(fileDialog.getSelectedFile());
+		   for (File file: fileDialog.getSelectedFiles())
+			loadFile(file);
 		}
 		else {
 			log.trace("Loading aborted.");
@@ -595,6 +597,16 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 				}
 				else {
 					log.trace("Drag and drop: received multiple files, ignoring.");
+					for (File file: files)
+        					{
+        					    if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
+        						fileConsumer.accept(file);
+        					}
+        					else {
+        						log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
+        					}
+					}
+					
 				}
 			}
 		});

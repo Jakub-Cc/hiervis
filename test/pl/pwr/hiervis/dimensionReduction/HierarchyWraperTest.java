@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.test.TestCommon;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.MultidimensionalScaling;
 import pl.pwr.hiervis.dimensionReduction.methods.StarCoordinates;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class HierarchyWraperTest {
@@ -103,7 +103,7 @@ public class HierarchyWraperTest {
 	public void testAddReducedHierarchy() {
 		LoadedHierarchy loadedHierarchy = new LoadedHierarchy(hierarchy,
 				new LoadedHierarchy.Options(false, false, false, false, false));
-		DimensionReduction dimensionReduction = new StarCoordinates();
+		FeatureExtraction dimensionReduction = new StarCoordinates();
 		CalculatedDimensionReduction calculatedDimensionReduction = new CalculatedDimensionReduction(loadedHierarchy,
 				dimensionReduction, hierarchy);
 		hierachyWraper.addReducedHierarchy(calculatedDimensionReduction);

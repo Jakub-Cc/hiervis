@@ -9,12 +9,13 @@ import org.junit.Test;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.TestCommon;
 import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Euclidean;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class MultidimensionalScalingTest {
 
     LoadedHierarchy loadedHierarchy;
-    DimensionReduction dimensionReduction;
+    FeatureExtraction dimensionReduction;
     Hierarchy hierarchy;
 
     @Before
