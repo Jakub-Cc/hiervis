@@ -155,8 +155,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 	cboxAllH = new JCheckBox("Toggle All");
 	cboxAllH.setEnabled(context.isHierarchyDataLoaded());
-	cboxAllH.addItemListener(
-		e -> Arrays.stream(cboxesHorizontal).forEach(cbox -> cbox.setSelected(cboxAllH.isSelected())));
+	cboxAllH.addItemListener(e -> Arrays.stream(cboxesHorizontal).forEach(cbox -> cbox.setSelected(cboxAllH.isSelected())));
 
 	cHorizontal.add(cboxAllH, builder.position(0, 0).anchorWest().build());
 	cHorizontal.add(new JSeparator(SwingConstants.VERTICAL), builder.position(1, 0).fillVertical().build());
@@ -184,8 +183,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 	cboxAllV = new JCheckBox("Toggle All");
 	cboxAllV.setEnabled(context.isHierarchyDataLoaded());
-	cboxAllV.addItemListener(
-		e -> Arrays.stream(cboxesVertical).forEach(cbox -> cbox.setSelected(cboxAllV.isSelected())));
+	cboxAllV.addItemListener(e -> Arrays.stream(cboxesVertical).forEach(cbox -> cbox.setSelected(cboxAllV.isSelected())));
 
 	cVertical.add(cboxAllV, builder.position(0, 0).anchorNorth().build());
 	cVertical.add(new JSeparator(SwingConstants.HORIZONTAL), builder.position(0, 1).fillHorizontal().build());
@@ -276,11 +274,11 @@ public class InstanceVisualizationsFrame extends JFrame {
     }
 
     /**
-     * Returns new size increment based on the current size of a display, so that we
-     * don't have to scroll 10000 times when the displays are already large.
+     * Returns new size increment based on the current size of a display, so that we don't
+     * have to scroll 10000 times when the displays are already large.
      * 
-     * @param w number to decide the new size increment on; usually width or height,
-     *          whichever is higher
+     * @param w number to decide the new size increment on; usually width or height, whichever
+     *          is higher
      * @return the new size increment
      */
     private int getSizeIncrement(int w) {
@@ -340,8 +338,12 @@ public class InstanceVisualizationsFrame extends JFrame {
 	cboxesVertical = new JCheckBox[dims];
 
 	for (int i = 0; i < dims; ++i) {
-	    JCheckBox cboxH = new JCheckBox(dataNames[i]);
-	    JCheckBox cboxV = new JCheckBox(dataNames[i]);
+	    String cboxName = dataNames[i];
+	    if (cboxName.length() > 20)
+		cboxName = cboxName.substring(0, 20) + "...";
+
+	    JCheckBox cboxH = new JCheckBox(cboxName);
+	    JCheckBox cboxV = new JCheckBox(cboxName);
 
 	    cboxH.setSelected(false);
 	    cboxV.setSelected(false);
@@ -400,12 +402,17 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 	BasicLabelUI verticalUI = new VerticalLabelUI(false);
 	for (int i = 0; i < dims; ++i) {
-	    JLabel lblH = new JLabel(dataNames[i]);
+
+	    String dataName = dataNames[i];
+	    if (dataName.length() > 20)
+		dataName = dataName.substring(0, 20) + "...";
+
+	    JLabel lblH = new JLabel(dataName);
 	    lblH.setHorizontalAlignment(SwingConstants.CENTER);
 	    lblH.setVisible(false);
 	    cCols.add(lblH, builder.position(i, 0).insets(insetsH).build());
 
-	    JLabel lblV = new JLabel(dataNames[i]);
+	    JLabel lblV = new JLabel(dataName);
 	    lblV.setUI(verticalUI);
 	    lblV.setHorizontalAlignment(SwingConstants.CENTER);
 	    lblV.setVisible(false);
@@ -560,8 +567,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 	Table table = context.getHierarchy().getInstanceTable();
 
 	HistogramTable histoTable = new HistogramTable(table, context.getConfig().getNumberOfHistogramBins());
-	HistogramGraph display = new HistogramGraph(histoTable, table.getColumnName(dim),
-		context.getConfig().getHistogramColor());
+	HistogramGraph display = new HistogramGraph(histoTable, table.getColumnName(dim), context.getConfig().getHistogramColor());
 
 	display.setBackground(context.getConfig().getBackgroundColor());
 	display.setPreferredSize(new Dimension(visWidth, visHeight));
@@ -604,8 +610,7 @@ public class InstanceVisualizationsFrame extends JFrame {
     }
 
     /**
-     * Creates an instance display for the specified dimensions and the specified
-     * node
+     * Creates an instance display for the specified dimensions and the specified node
      * 
      * @param dimX index of the X dimension
      * @param dimY index of the Y dimension
@@ -619,13 +624,12 @@ public class InstanceVisualizationsFrame extends JFrame {
     }
 
     private Visualization createInstanceVisualizationFor(int dimX, int dimY) {
-	return HierarchyProcessor.createInstanceVisualization(context, context.getConfig().getPointSize(), dimX, dimY,
-		true);
+	return HierarchyProcessor.createInstanceVisualization(context, context.getConfig().getPointSize(), dimX, dimY, true);
     }
 
     /**
-     * Creates a properly configured, interactable display which can be used to show
-     * instance visualizations.
+     * Creates a properly configured, interactable display which can be used to show instance
+     * visualizations.
      * 
      * @param vis  the visualization to create the display for.
      * @param dimX index of the X dimension
@@ -634,8 +638,7 @@ public class InstanceVisualizationsFrame extends JFrame {
      */
     private DisplayEx createInstanceDisplayFor(Visualization vis, int dimX, int dimY) {
 	DisplayEx display = new DisplayEx(vis);
-	display.setHighQuality(context.getHierarchy().getMainHierarchy()
-		.getOverallNumberOfInstances() < HVConstants.INSTANCE_COUNT_MED);
+	display.setHighQuality(context.getHierarchy().getMainHierarchy().getOverallNumberOfInstances() < HVConstants.INSTANCE_COUNT_MED);
 	display.setBackground(context.getConfig().getBackgroundColor());
 	display.setPreferredSize(new Dimension(visWidth, visHeight));
 
@@ -643,8 +646,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 	display.setItemSorter(new ItemSorter() {
 	    public int score(VisualItem item) {
 		if (item.isInGroup(HVConstants.INSTANCE_DATA_NAME)) {
-		    prefuse.data.Node node = (prefuse.data.Node) item
-			    .get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
+		    prefuse.data.Node node = (prefuse.data.Node) item.get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
 		    int roleId = node.getInt(HVConstants.PREFUSE_NODE_ROLE_COLUMN_NAME);
 
 		    // Sort the nodes so that instances belonging to the currently selected node are
@@ -669,8 +671,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 		buf.append("<html>");
 		if (item.canGetString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME)) {
-		    buf.append("<b>").append(item.getString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME))
-			    .append("</b>").append("<br/>");
+		    buf.append("<b>").append(item.getString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME)).append("</b>").append("<br/>");
 		}
 
 		prefuse.data.Node node = (prefuse.data.Node) item.get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
@@ -684,10 +685,8 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 		String x = cboxesHorizontal[dimX].getText();
 		String y = cboxesHorizontal[dimY].getText();
-		buf.append(x).append(": ").append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimX))
-			.append("<br/>");
-		buf.append(y).append(": ")
-			.append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimY));
+		buf.append(x).append(": ").append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimX)).append("<br/>");
+		buf.append(y).append(": ").append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimY));
 
 		buf.append("</html>");
 
@@ -715,8 +714,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 			Point2D br = new Point2D.Double(layoutBounds.getMaxX(), layoutBounds.getMaxY());
 			transform.transform(tl, tl);
 			transform.transform(br, br);
-			layoutBounds = new Rectangle2D.Double(tl.getX(), tl.getY(), br.getX() - tl.getX(),
-				br.getY() - tl.getY());
+			layoutBounds = new Rectangle2D.Double(tl.getX(), tl.getY(), br.getX() - tl.getX(), br.getY() - tl.getY());
 		    }
 
 		    // Scale the current layout area by 10%
@@ -728,8 +726,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 		    Point2D focusOld = transformI.transform(e.getPoint(), new Point2D.Double());
 		    Point2D focusNew = new Point2D.Double(focusOld.getX() * zoomDelta, focusOld.getY() * zoomDelta);
-		    Point2D focusDelta = new Point2D.Double(focusNew.getX() - focusOld.getX(),
-			    focusNew.getY() - focusOld.getY());
+		    Point2D focusDelta = new Point2D.Double(focusNew.getX() - focusOld.getX(), focusNew.getY() - focusOld.getY());
 
 		    transform.translate(-focusDelta.getX(), -focusDelta.getY());
 		    Utils.setTransform(d, transform);
@@ -799,8 +796,8 @@ public class InstanceVisualizationsFrame extends JFrame {
     /**
      * @param x dimension number on the X axis (0 based)
      * @param y dimension number on the Y axis (0 based)
-     * @return whether x-th horizontal and y-th vertical checkboxes are both
-     *         selected, indicating that the display at { x, y } should be visible.
+     * @return whether x-th horizontal and y-th vertical checkboxes are both selected,
+     *         indicating that the display at { x, y } should be visible.
      */
     private boolean shouldDisplayBeVisible(int x, int y) {
 	return cboxesHorizontal[x].isSelected() && cboxesVertical[y].isSelected();
@@ -809,8 +806,8 @@ public class InstanceVisualizationsFrame extends JFrame {
     /**
      * @param dimX dimension number on the X axis (0 based)
      * @param dimY dimension number on the Y axis (0 based)
-     * @return the component associated with the specified dimensions, or null if it
-     *         wasn't created yet.
+     * @return the component associated with the specified dimensions, or null if it wasn't
+     *         created yet.
      */
     private Component getComponent(int dimX, int dimY) {
 	GridBagLayout layout = (GridBagLayout) cViewport.getLayout();
@@ -855,13 +852,12 @@ public class InstanceVisualizationsFrame extends JFrame {
      * @return true if any instance display is visible, false otherwise.
      */
     private boolean displaysVisible() {
-	return Arrays.stream(cViewport.getComponents()).filter(c -> c.isVisible() && c instanceof DisplayEx)
-		.count() > 0;
+	return Arrays.stream(cViewport.getComponents()).filter(c -> c.isVisible() && c instanceof DisplayEx).count() > 0;
     }
 
     /**
-     * Executes the specified function for each existing display in the grid. This
-     * includes both scatter plots as well as histograms.
+     * Executes the specified function for each existing display in the grid. This includes
+     * both scatter plots as well as histograms.
      */
     private void forEachDisplay(Consumer<DisplayEx> func) {
 	for (Component c : cViewport.getComponents()) {
@@ -906,8 +902,8 @@ public class InstanceVisualizationsFrame extends JFrame {
     }
 
     /**
-     * Updates the toggle-all checkbox state, so that it correctly illustrates the
-     * selection states of its member checkboxes.
+     * Updates the toggle-all checkbox state, so that it correctly illustrates the selection
+     * states of its member checkboxes.
      * 
      * @param dim        the index of the checkbox whose selection state changed
      * @param horizontal whether the checkbox was horizontal or vertical
@@ -928,14 +924,14 @@ public class InstanceVisualizationsFrame extends JFrame {
     }
 
     /**
-     * Updates the state of the visualization viewport, creating visualizations or
-     * making them visible depending on whether the dimension that corresponds to
-     * them is currently selected or not.
+     * Updates the state of the visualization viewport, creating visualizations or making them
+     * visible depending on whether the dimension that corresponds to them is currently
+     * selected or not.
      * 
-     * @param dimX Index of the horizontal dimension to update. Can be negative to
-     *             update all horizontal dimensions.
-     * @param dimY Index of the vertical dimension to update. Can be negative to
-     *             update all vertical dimensions.
+     * @param dimX Index of the horizontal dimension to update. Can be negative to update all
+     *             horizontal dimensions.
+     * @param dimY Index of the vertical dimension to update. Can be negative to update all
+     *             vertical dimensions.
      */
     private void updateDimensionVisibility(int dimX, int dimY) {
 	for (int y = 0; y < cboxesVertical.length; ++y) {
@@ -966,8 +962,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 			createDisplayFor(x, y);
 		    }
 		    else {
-			createLabelFor(x, y,
-				"<html>Visualizations are created only for the upper half of the matrix.</html>");
+			createLabelFor(x, y, "<html>Visualizations are created only for the upper half of the matrix.</html>");
 		    }
 		}
 	    }
@@ -982,8 +977,8 @@ public class InstanceVisualizationsFrame extends JFrame {
     }
 
     /**
-     * Sets the specified checkbox's value to the specified boolean value without
-     * notifying listeners.
+     * Sets the specified checkbox's value to the specified boolean value without notifying
+     * listeners.
      * 
      * @param cbox     the checkbox to set
      * @param newValue the new selection state of the checkbox
@@ -998,10 +993,10 @@ public class InstanceVisualizationsFrame extends JFrame {
     /**
      * Disposes all {@link Display}s currently in the frame.
      * 
-     * Calling this method while the displays / visualizations are still being laid
-     * out will cause a plethora of errors to be printed out in the console, but it
-     * should be possible to safely ignore them (the displays those errors complain
-     * about have been disposed, and are no longer used)
+     * Calling this method while the displays / visualizations are still being laid out will
+     * cause a plethora of errors to be printed out in the console, but it should be possible
+     * to safely ignore them (the displays those errors complain about have been disposed, and
+     * are no longer used)
      */
     public void disposeDisplays() {
 	forEachDisplay(display -> {

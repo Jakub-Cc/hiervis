@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.test.TestCommon;
-import pl.pwr.hiervis.dimensionReduction.methods.StarCoordinates;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.featureExtraction.StarCoordinates;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class CalculatedDimensionReductionTest {
@@ -29,7 +29,7 @@ public class CalculatedDimensionReductionTest {
     @Test
     public void testCalculatedDimensionReduction() {
 	CalculatedDimensionReduction calculatedDimensionReduction = new CalculatedDimensionReduction(loadedHierarchy,
-		dimensionReduction, hierarchy);
+		dimensionReduction, hierarchy, null);
 	assertNotSame(calculatedDimensionReduction, null);
 	assertSame(calculatedDimensionReduction.dimensionReduction, dimensionReduction);
 	assertSame(calculatedDimensionReduction.inputLoadedHierarchy, loadedHierarchy);

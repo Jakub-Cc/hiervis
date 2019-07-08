@@ -9,6 +9,7 @@ import org.junit.Test;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.TestCommon;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.featureExtraction.PrincipalComponentAnalysis;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class PrincipalComponentAnalysisTest {
@@ -20,15 +21,14 @@ public class PrincipalComponentAnalysisTest {
     public void initialize() {
 	dimensionReduction = new PrincipalComponentAnalysis();
 	hierarchy = TestCommon.getTwoTwoGroupsHierarchy();
-	loadedHierarchy = new LoadedHierarchy(hierarchy,
-		new LoadedHierarchy.Options(false, false, false, false, false));
+	loadedHierarchy = new LoadedHierarchy(hierarchy, new LoadedHierarchy.Options(false, false, false, false, false));
     }
 
     @Test
     public void testPrincipalComponentAnalysisInt() {
 	dimensionReduction = new PrincipalComponentAnalysis(3);
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
-	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);
+	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy.getMainHierarchy());
 	assertEquals(3, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 
@@ -41,7 +41,7 @@ public class PrincipalComponentAnalysisTest {
     @Test
     public void testReduceHierarchy() {
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
-	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);
+	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy.getMainHierarchy());
 	assertEquals(2, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 

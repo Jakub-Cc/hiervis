@@ -3,17 +3,15 @@ package pl.pwr.hiervis.dimensionReduction.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -22,8 +20,13 @@ import javax.swing.border.EmptyBorder;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunnerManager;
+import pl.pwr.hiervis.dimensionReduction.FeatureSelectionResultDialogManager;
+import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelection;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelectionResult;
 import pl.pwr.hiervis.dimensionReduction.ui.elements.LoadingIcon;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.SeparatorComboBox;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
@@ -32,7 +35,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 	@Override
 	public void accept(LoadedHierarchy t) {
 	    disableSelection();
-	    disableBtn();
+	    disableRecalcBtn();
 	}
     }
 
@@ -40,7 +43,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 	@Override
 	public void accept(LoadedHierarchy t) {
 	    previousSelection = -1;
-	    comboBox.setSelectedIndex(0);
+	    comboBox.setTrueIndex(0);
 	    enableSelection();
 	}
     }
@@ -51,7 +54,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
     private HVContext context;
-    JComboBox<String> comboBox;
+    SeparatorComboBox comboBox;
     private HierarchyChangedClass changedClass;
     private HierarchyChangingClass changingClass;
     private int previousSelection;
@@ -62,6 +65,9 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
     private Component horizontalStrut_1;
     private JButton btnStop;
     private Container instanceContainer;
+    private Box horizontalBox;
+
+    private FeatureSelectionResultDialogManager fSResultdialogManager;
 
     /**
      * Launch the application.
@@ -82,6 +88,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
      */
     public DimensionReductionWrapInstanceVisualizationsFrame(HVContext context) {
 	this.context = context;
+	fSResultdialogManager = new FeatureSelectionResultDialogManager();
 	changedClass = new HierarchyChangedClass();
 	changingClass = new HierarchyChangingClass();
 	dimensionReductionRunnerManager = new DimensionReductionRunnerManager(context);
@@ -94,69 +101,53 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 	setContentPane(contentPane);
 	contentPane.setLayout(new BorderLayout(0, 0));
 
-	// confirmationDialog = new ConfirmationDialog();
-
 	JPanel panel = new JPanel();
-	panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
 	contentPane.add(panel, BorderLayout.PAGE_START);
-
-	comboBox = new JComboBox<String>();
-	panel.add(comboBox);
-
-	horizontalStrut = Box.createHorizontalStrut(10);
-	panel.add(horizontalStrut);
-
-	forceBtn = new JButton("Recalculate");
-	forceBtn.setFont(new Font("Tahoma", Font.PLAIN, 11));
-	forceBtn.setVerticalAlignment(SwingConstants.TOP);
-	panel.add(forceBtn);
-
-	comboBox.addItem("Orginal data space");
-
-	for (String s : context.getDimensionReductionMenager().getNames())
-	    comboBox.addItem(s);
-
-	disableSelection();
-	disableBtn();
+	panel.setLayout(new BorderLayout(0, 0));
 
 	context.hierarchyChanging.addListener(changingClass);
 	context.hierarchyChanged.addListener(changedClass);
 
 	context.dimensionReductionCalculated.addListener(this::onDimensionReductionCalculated);
 
-	comboBox.addActionListener(new ActionListener() {
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
-		if (previousSelection != comboBox.getSelectedIndex()) {
-		    onDimensionReductionSelected(comboBox.getSelectedIndex());
-		    previousSelection = comboBox.getSelectedIndex();
-		}
+	horizontalBox = Box.createHorizontalBox();
+	panel.add(horizontalBox, BorderLayout.WEST);
 
-	    }
-	});
-	forceBtn.setFocusable(false);
+	comboBox = new SeparatorComboBox();
+	horizontalBox.add(comboBox);
 
-	horizontalStrut_1 = Box.createHorizontalStrut(10);
-	panel.add(horizontalStrut_1);
+	horizontalStrut = Box.createHorizontalStrut(10);
+	horizontalBox.add(horizontalStrut);
 
 	btnStop = new JButton("Stop Calculation");
+	horizontalBox.add(btnStop);
 	btnStop.setVerticalAlignment(SwingConstants.TOP);
 	btnStop.setFont(new Font("Tahoma", Font.PLAIN, 11));
 	btnStop.addActionListener(this::cancelCurrentCalculation);
 	btnStop.setFocusable(false);
-	panel.add(btnStop);
+	btnStop.setVisible(false);
+
+	horizontalStrut_1 = Box.createHorizontalStrut(10);
+	horizontalBox.add(horizontalStrut_1);
+
+	forceBtn = new JButton("Recalculate");
+	horizontalBox.add(forceBtn);
+	forceBtn.setFont(new Font("Tahoma", Font.PLAIN, 11));
+	forceBtn.setVerticalAlignment(SwingConstants.TOP);
+	forceBtn.setFocusable(false);
+
+	forceBtn.addActionListener(this::recalculateReduction);
+
+	comboBox.addItem("Orginal data space");
 
 	loadingIcon = new LoadingIcon();
 	loadingIcon.hideIcon();
-	btnStop.setVisible(false);
 
 	instanceContainer = this.context.getInstanceFrame().getContentPane();
 
 	contentPane.add(loadingIcon);
 	contentPane.add(instanceContainer, BorderLayout.CENTER);
-
-	forceBtn.addActionListener(this::forceReductionSelect);
 
 	getContentPane().addComponentListener(new ComponentListener() {
 	    @Override
@@ -178,143 +169,228 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 	    public void componentHidden(ComponentEvent e) {
 	    }
 	});
+
+	comboBox.addSeparator();
+
+	for (int i = 0; i < context.getDimensionReductionMenager().getNames().length; i++) {
+	    if (checkIfSeparatorNeeded(i)) {
+		comboBox.addSeparator();
+	    }
+	    String s = context.getDimensionReductionMenager().getNames()[i];
+	    comboBox.addItem(s);
+	}
+
+	comboBox.addActionListener(e -> {
+	    onDimensionReductionSelected(comboBox.getTrueIndex());
+	    previousSelection = comboBox.getTrueIndex();
+	});
+
+	disableSelection();
+	disableRecalcBtn();
     }
 
-    private void forceReductionSelect(ActionEvent e) {
-	int index = comboBox.getSelectedIndex();
-	int x = (int) getContentPane().getLocationOnScreen().getX();
-	int y = (int) getContentPane().getLocationOnScreen().getY();
+    private boolean checkIfSeparatorNeeded(int index) {
+	if (index == 0)
+	    return false;
 
-	FeatureExtraction dimensionReduction = context.getDimensionReductionMenager().showDialog(index - 1,
-		context.getHierarchy().getHierarchyWraper().getOriginalHierarchy(), x, y);
+	Class<?> currentClass = context.getDimensionReductionMenager().getResaultClass(index);
+	Class<?> previousClass = context.getDimensionReductionMenager().getResaultClass(index - 1);
+
+	if (FeatureExtraction.class.isAssignableFrom(currentClass) && FeatureExtraction.class.isAssignableFrom(previousClass))
+	    return false;
+
+	if (FeatureSelection.class.isAssignableFrom(currentClass) && FeatureSelection.class.isAssignableFrom(previousClass))
+	    return false;
+
+	return true;
+    }
+
+    private void recalculateReduction(ActionEvent e) {
+	int index = comboBox.getTrueIndex();
+	DimensionReductionI dimensionReduction = handleDialog(index);
 
 	if (dimensionReduction != null) {
 	    context.getHierarchy().getHierarchyWraper().getReducedHierarchy()[index - 1] = null;
-	    disableBtn();
-	    ifReductonCalculating(index);
-	    afterConfirmedReduction(context.getHierarchy(), dimensionReduction, x, y);
+	    disableRecalcBtn();
+	}
+    }
+
+    private void calculateReduction(int index) {
+	DimensionReductionI dimensionReduction = handleDialog(index);
+
+	if (dimensionReduction == null) {
+	    comboBox.setTrueIndex(previousSelection);
+	    onDimensionReductionSelected(previousSelection);
+	}
+    }
+
+    private DimensionReductionI handleDialog(int index) {
+	int x = (int) getContentPane().getLocationOnScreen().getX();
+	int y = (int) getContentPane().getLocationOnScreen().getY();
+
+	DimensionReductionI dimensionReduction = context.getDimensionReductionMenager().showDialog(index - 1,
+		context.getHierarchy().getHierarchyWraper().getOriginalHierarchy(), x, y);
+
+	if (dimensionReduction != null) {
+	    afterConfirmedReduction(context.getHierarchy(), dimensionReduction);
 	}
 
+	return dimensionReduction;
     }
 
     private void onDimensionReductionSelected(int index) {
+	btnStop.setVisible(false);
+	loadingIcon.hideIcon();
+
 	if (index == -1) {
 	    previousSelection = -1;
-	    comboBox.setSelectedIndex(0);
+	    comboBox.setTrueIndex(0);
+	}
+	else if (index == 0) {
+	    afterOrginalHierSeleted();
 	}
 	else if (context.getHierarchy().getHierarchyWraper().getHierarchyWithoutChange(index) != null) {
-	    btnStop.setVisible(false);
-	    afterSelection(index, true);
-	    loadingIcon.hideIcon();
+	    afterCalculatedFExtractionSelected(index);
+	}
+	else if (context.getHierarchy().getHierarchyWraper().getFSResult(index) != null) {
+	    afterCalculatedFSelectionSelected(index);
 	}
 	else if (context.getDimensionReductionMenager().isInQueue(context.getHierarchy(), index - 1)) {
-	    ifReductonCalculating(index);
-	    context.dimensionReductionCalculating.broadcast(null);
+	    reductonCalculating();
 	}
 	else {
-	    int x = (int) getContentPane().getLocationOnScreen().getX();
-	    int y = (int) getContentPane().getLocationOnScreen().getY();
-
-	    FeatureExtraction dimensionReduction = context.getDimensionReductionMenager().showDialog(index - 1,
-		    context.getHierarchy().getHierarchyWraper().getOriginalHierarchy(), x, y);
-
-	    if (dimensionReduction == null) {
-		comboBox.setSelectedIndex(previousSelection);
-		onDimensionReductionSelected(previousSelection);
-	    }
-	    else {
-		ifReductonCalculating(index);
-		afterConfirmedReduction(context.getHierarchy(), dimensionReduction, x, y);
-	    }
+	    calculateReduction(index);
 	}
     }
 
-    private void ifReductonCalculating(int index) {
-	disableBtn();
-	context.getInstanceFrame().clearUI();
-	displayLoadingIcon();
+    private void afterOrginalHierSeleted() {
+	disableRecalcBtn();
+	if (previousSelection != comboBox.getTrueIndex()) {
+	    reloadHierarchy(0);
+	}
     }
 
-    private void afterConfirmedReduction(LoadedHierarchy loadedHierarchy, FeatureExtraction dimensionReduction, int x,
-	    int y) {
-	context.dimensionReductionCalculating.broadcast(dimensionReduction);
-
-	context.getDimensionReductionMenager().addToQueue(loadedHierarchy, dimensionReduction.getClass());
-
-	dimensionReductionRunnerManager.addTask(loadedHierarchy, dimensionReduction);
-	// dimensionReductionRunner = new DimensionReductionRunner(context,
-	// dimensionReduction);
-	// dimensionReductionRunner.start();
-	// confirmationDialog.showDialog(x, y);
+    private void afterCalculatedFExtractionSelected(int index) {
+	enableRecalcBtn();
+	if (previousSelection != comboBox.getTrueIndex()) {
+	    reloadHierarchy(index);
+	}
     }
 
     /**
      * ustawia hierarchie na nowa zalezna od indexu oraz odswieza widoki omijajac liste z
-     * wyborem aby nie ustawila sie zpowrotem na poczatkowych wartosciach dodatkowo sprawdza
-     * czy nie zostala wybrana ponownie ta sama hierarchia co poprzednio aby nadmiarowo nie
-     * odswierzac
+     * wyborem aby nie ustawila sie zpowrotem na poczatkowych wartosciach
      */
-    private void afterSelection(int index, boolean recalculateInstanceTable) {
-	if (comboBox.getSelectedIndex() > 0) {
-	    enableBtn();
-	}
-	else {
-	    disableBtn();
-	}
-	if (previousSelection != comboBox.getSelectedIndex()) {
-	    context.getHierarchy().getHierarchyWraper().setHierarchy(index);
+    private void reloadHierarchy(int index) {
+	context.getHierarchy().getHierarchyWraper().setHierarchy(index);
+	context.getHierarchy().recalculateInstanceTable();
 
-	    if (recalculateInstanceTable) {
-		context.getHierarchy().recalculateInstanceTable();
-	    }
+	context.hierarchyChanging.removeListener(changingClass);
+	context.hierarchyChanged.removeListener(changedClass);
 
-	    context.hierarchyChanging.removeListener(changingClass);
-	    context.hierarchyChanged.removeListener(changedClass);
+	context.hierarchyChanging.broadcast(context.getHierarchy());
+	context.hierarchyChanged.broadcast(context.getHierarchy());
 
-	    context.hierarchyChanging.broadcast(context.getHierarchy());
-	    context.hierarchyChanged.broadcast(context.getHierarchy());
+	context.hierarchyChanging.addListener(changingClass);
+	context.hierarchyChanged.addListener(changedClass);
+    }
 
-	    context.hierarchyChanging.addListener(changingClass);
-	    context.hierarchyChanged.addListener(changedClass);
+    /**
+     * Will not validate if index correct or FS result calculated
+     */
+    private void afterCalculatedFSelectionSelected(int index) {
+	// String featureSelectionName = context.getDimensionReductionMenager().getNames()[index -
+	// 1];
+
+	// showFSResult(context.getHierarchy().getHierarchyWraper().getFSResult(index),
+	// featureSelectionName, null);
+	// TODO
+
+	fSResultdialogManager.showDialog(context.getHierarchy(), context.getDimensionReductionMenager().getResaultClass(index - 1));
+
+	enableRecalcBtn();
+
+	if (previousSelection != index) {
+	    context.getInstanceFrame().clearUI();
+	    context.dimensionReductionCalculating.broadcast(null);
 	}
     }
 
+    private void reductonCalculating() {
+	disableRecalcBtn();
+	context.getInstanceFrame().clearUI();
+	context.dimensionReductionCalculating.broadcast(null);
+	displayLoadingIcon();
+    }
+
+    private void afterConfirmedReduction(LoadedHierarchy loadedHierarchy, DimensionReductionI dimensionReduction) {
+	reductonCalculating();
+	context.dimensionReductionCalculating.broadcast(dimensionReduction);
+	context.getDimensionReductionMenager().addToQueue(loadedHierarchy, dimensionReduction.getClass());
+	dimensionReductionRunnerManager.addTask(loadedHierarchy, dimensionReduction);
+    }
+
     private void onDimensionReductionCalculated(CalculatedDimensionReduction reduction) {
-	context.getDimensionReductionMenager().removeFromQueue(reduction.inputLoadedHierarchy,
-		reduction.dimensionReduction.getClass());
-
-	if (comboBox.getSelectedIndex() - 1 == context.getDimensionReductionMenager()
-		.getIndex(reduction.dimensionReduction)) {
-	    loadingIcon.hideIcon();
-	    btnStop.setVisible(false);
+	context.getDimensionReductionMenager().removeFromQueue(reduction.inputLoadedHierarchy, reduction.dimensionReduction.getClass());
+	if (FeatureExtraction.class.isAssignableFrom(reduction.dimensionReduction.getClass()) && reduction.outputHierarchy != null) {
+	    fExtractionCalculated(reduction);
 	}
-	if (reduction.outputHierarchy != null) {
-	    loadingIcon.hideIcon();
-	    btnStop.setVisible(false);
-	    int index = context.getDimensionReductionMenager().getIndex(reduction.dimensionReduction) + 1;
-
-	    if (reduction.inputLoadedHierarchy == context.getHierarchy() && comboBox.getSelectedIndex() == index) {
-		context.getHierarchy().getHierarchyWraper().addReducedHierarchy(reduction);
-		previousSelection = -1;
-		comboBox.setSelectedIndex(index);
-		afterSelection(index, true);
-	    }
-	    else
-		for (LoadedHierarchy l : context.getHierarchyList()) {
-		    if (l == reduction.inputLoadedHierarchy) {
-			l.getHierarchyWraper().addReducedHierarchy(reduction);
-		    }
-		}
+	else if (FeatureSelection.class.isAssignableFrom(reduction.dimensionReduction.getClass()) && reduction.fsResult != null) {
+	    fSelectionCalculated(reduction);
 	}
 	else {
 	    previousSelection = -1;
-	    comboBox.setSelectedIndex(0);
+	    comboBox.setTrueIndex(0);
 	}
+    }
+
+    private void fExtractionCalculated(CalculatedDimensionReduction reduction) {
+	int index = context.getDimensionReductionMenager().getIndex(reduction.dimensionReduction) + 1;
+	if (reduction.inputLoadedHierarchy == context.getHierarchy() && comboBox.getTrueIndex() == index) {
+	    context.getHierarchy().getHierarchyWraper().addReducedHierarchy(reduction);
+	    previousSelection = -1;
+	    comboBox.setTrueIndex(index);
+	}
+	else
+	    for (LoadedHierarchy l : context.getHierarchyList()) {
+		if (l == reduction.inputLoadedHierarchy) {
+		    l.getHierarchyWraper().addReducedHierarchy(reduction);
+		    return;
+		}
+	    }
+    }
+
+    private void fSelectionCalculated(CalculatedDimensionReduction reduction) {
+	int index = context.getDimensionReductionMenager().getIndex(reduction.dimensionReduction) + 1;
+
+	if (reduction.inputLoadedHierarchy == context.getHierarchy() && comboBox.getTrueIndex() == index) {
+	    previousSelection = -1;
+	    comboBox.setTrueIndex(0);
+	    context.getHierarchy().getHierarchyWraper().addFeatureSelectionResult(reduction);
+
+	    // showFSResult(reduction.fsResult, reduction.dimensionReduction.getName(),
+	    // reduction.inputLoadedHierarchy);
+	    // TODO
+	    fSResultdialogManager.addResultAndShow(reduction);
+	}
+	else {
+	    for (LoadedHierarchy l : context.getHierarchyList()) {
+		if (l == reduction.inputLoadedHierarchy) {
+		    l.getHierarchyWraper().addFeatureSelectionResult(reduction);
+		    return;
+		}
+	    }
+	}
+    }
+
+    private void showFSResult(List<FeatureSelectionResult> results, String featureSelectionName, LoadedHierarchy loadedHierarchy) {
+	FeatureSelectionResultDialog featureSelectionResultDialog = new FeatureSelectionResultDialog(results, featureSelectionName);
+	featureSelectionResultDialog.showDialog();
     }
 
     private void cancelCurrentCalculation(ActionEvent e) {
 	dimensionReductionRunnerManager.interuptTask(context.getHierarchy(),
-		context.getDimensionReductionMenager().getResaultClass(comboBox.getSelectedIndex() - 1));
+		context.getDimensionReductionMenager().getResaultClass(comboBox.getTrueIndex() - 1));
     }
 
     private void disableSelection() {
@@ -325,16 +401,14 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 	comboBox.setEnabled(true);
     }
 
-    private void disableBtn() {
+    private void disableRecalcBtn() {
 	forceBtn.setEnabled(false);
 	forceBtn.setVisible(false);
-	horizontalStrut.setVisible(false);
     }
 
-    private void enableBtn() {
+    private void enableRecalcBtn() {
 	forceBtn.setEnabled(true);
 	forceBtn.setVisible(true);
-	horizontalStrut.setVisible(true);
     }
 
     private void displayLoadingIcon() {

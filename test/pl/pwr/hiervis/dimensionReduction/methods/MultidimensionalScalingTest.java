@@ -10,6 +10,7 @@ import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.TestCommon;
 import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Euclidean;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.featureExtraction.MultidimensionalScaling;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class MultidimensionalScalingTest {
@@ -22,8 +23,7 @@ public class MultidimensionalScalingTest {
     public void initialize() {
 	dimensionReduction = new MultidimensionalScaling();
 	hierarchy = TestCommon.getTwoTwoGroupsHierarchy();
-	loadedHierarchy = new LoadedHierarchy(hierarchy,
-		new LoadedHierarchy.Options(false, false, false, false, false));
+	loadedHierarchy = new LoadedHierarchy(hierarchy, new LoadedHierarchy.Options(false, false, false, false, false));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class MultidimensionalScalingTest {
     @Test
     public void testReduceHierarchy() {
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
-	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);
+	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy.getMainHierarchy());
 	assertEquals(2, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 

@@ -1,6 +1,7 @@
 package pl.pwr.hiervis.dimensionReduction.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,7 +9,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -29,34 +29,23 @@ import org.apache.logging.log4j.Logger;
 
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelectionResult;
-import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelectionResultTableModel;
 import pl.pwr.hiervis.dimensionReduction.ui.elements.BarGraph;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.FeatureSelectionResultTableModel;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.KeyBinds;
 import pl.pwr.hiervis.dimensionReduction.ui.elements.TableColumnAdjuster;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.SwingUIUtils;
 import pl.pwr.hiervis.util.ui.JFileChooserEx;
-import prefuse.Display;
 
 public class FeatureSelectionResultDialog extends JDialog {
 
     private static final long serialVersionUID = -2918179612825385352L;
+    private static final Logger log = LogManager.getLogger(FeatureSelectionResultDialog.class);
     private HVContext context;
+    private LoadedHierarchy loadedHierarchy;
     private JTable dataTable;
     private List<FeatureSelectionResult> resultsList;
-    private static final Logger log = LogManager.getLogger(FeatureSelectionResultDialog.class);
-
-    public static void main(String[] args) {
-	List<FeatureSelectionResult> list = new ArrayList<FeatureSelectionResult>();
-
-	for (int i = 0; i < 80; i++) {
-	    list.add(new FeatureSelectionResult(i, "Dimension_" + i, i, i));
-	}
-
-	FeatureSelectionResultDialog resultDialog = new FeatureSelectionResultDialog(list, null);
-	resultDialog.pack();
-	resultDialog.setMinimumSize(resultDialog.getSize());
-	resultDialog.setVisible(true);
-    }
+    private String dropDimTitle;
 
     public void showDialog() {
 	this.pack();
@@ -65,8 +54,13 @@ public class FeatureSelectionResultDialog extends JDialog {
 
     }
 
-    public FeatureSelectionResultDialog(List<FeatureSelectionResult> selectionResult, HVContext context) {
-	this.setTitle("Feature Selection Result Dialog");
+    public FeatureSelectionResultDialog(List<FeatureSelectionResult> selectionResult, String featureSelectionName) {
+	HVContext context = HVContext.getContext();
+	loadedHierarchy = context.getHierarchy();
+	dropDimTitle = "[D] " + context.getHierarchyFrame().getSelectedTabTitle();
+
+	String title = featureSelectionName + " Result for: " + context.getHierarchyFrame().getSelectedTabTitle();
+	this.setTitle(title);
 
 	GridBagLayout gridBagLayout = new GridBagLayout();
 	gridBagLayout.columnWidths = new int[] { 0, 107, 0 };
@@ -86,7 +80,6 @@ public class FeatureSelectionResultDialog extends JDialog {
 	this.context = context;
 	this.resultsList = selectionResult;
 
-	// DefaultTableModel defaultTableModel = creataDataTableModel(selectionResult);
 	FeatureSelectionResultTableModel tabModel = new FeatureSelectionResultTableModel(selectionResult);
 
 	dataTable = new JTable(tabModel);
@@ -95,13 +88,12 @@ public class FeatureSelectionResultDialog extends JDialog {
 	TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(dataTable.getModel());
 	dataTable.setRowSorter(sorter);
 
-	TableColumnAdjuster columnAdjuster = new TableColumnAdjuster(dataTable);
-	columnAdjuster.adjustColumns();
-
 	setCellAlighment(dataTable.getColumnModel().getColumn(0), JLabel.RIGHT);
-	setCellAlighment(dataTable.getColumnModel().getColumn(1), JLabel.CENTER);
+	setCellAlighment(dataTable.getColumnModel().getColumn(1), JLabel.RIGHT);
 
 	scrollPane.setViewportView(dataTable);
+	TableColumnAdjuster columnAdjuster = new TableColumnAdjuster(dataTable, 12);
+	columnAdjuster.adjustColumns();
 
 	JPanel panel = new JPanel();
 	GridBagConstraints gbc_panel = new GridBagConstraints();
@@ -111,7 +103,7 @@ public class FeatureSelectionResultDialog extends JDialog {
 	getContentPane().add(panel, gbc_panel);
 	panel.setLayout(new BorderLayout(0, 0));
 
-	Display barChart = createBarChart(10);
+	JPanel barChart = createBarChart(10);
 	panel.add(barChart, BorderLayout.CENTER);
 
 	JPanel btnPanel = new JPanel();
@@ -128,7 +120,8 @@ public class FeatureSelectionResultDialog extends JDialog {
 	btnPanel.add(btnExportToCsv);
 
 	setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-	setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+
+	KeyBinds.setKeybindESC((JPanel) getContentPane(), KeyBinds.createDisposeAction(this));
     }
 
     /**
@@ -142,25 +135,31 @@ public class FeatureSelectionResultDialog extends JDialog {
 	tableColumn.setCellRenderer(cellRenderer);
     }
 
-    private Display createBarChart(int maxAmount) {
+    private JPanel createBarChart(int maxAmount) {
 	maxAmount = Math.min(maxAmount, resultsList.size());
 
 	double[] data = new double[maxAmount];
-	String[] lables = new String[maxAmount];
+	String[] labels = new String[maxAmount];
 	for (int i = 0; i < maxAmount; i++) {
 	    data[i] = resultsList.get(i).getScore();
-	    lables[i] = resultsList.get(i).getDimensionName();
+	    labels[i] = resultsList.get(i).getDimensionName();
 	}
 
-	return new BarGraph(data, lables, context);
+	Color backgroundColor = Color.WHITE;
+	Color barColor = Color.BLUE;
+	if (context != null) {
+	    backgroundColor = context.getConfig().getBackgroundColor();
+	    barColor = context.getConfig().getHistogramColor();
+	}
+
+	return BarGraph.CreateBarGraph(data, labels, backgroundColor, barColor);
     }
 
     private void openDropDimensionDialog(ActionEvent actionEvent) {
-	DropDimensionDialog dropDimensionDialogn = new DropDimensionDialog(context.getHierarchy(), resultsList);
+	DropDimensionDialog dropDimensionDialogn = new DropDimensionDialog(loadedHierarchy, resultsList);
 	LoadedHierarchy hierarchy = dropDimensionDialogn.showDialog();
 	if (hierarchy != null) {
-	    String tabTitle = "[D] " + context.getHierarchyFrame().getSelectedTabTitle();
-	    context.loadHierarchy(tabTitle, hierarchy);
+	    context.loadHierarchy(dropDimTitle, hierarchy);
 	    dispose();
 	}
     }

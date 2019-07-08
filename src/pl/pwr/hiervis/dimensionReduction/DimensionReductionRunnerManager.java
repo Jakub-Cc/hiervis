@@ -3,15 +3,11 @@ package pl.pwr.hiervis.dimensionReduction;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionRunnerManager {
-    private static final Logger log = LogManager.getLogger(DimensionReductionRunnerManager.class);
     private HVContext context;
     private List<DimensionReductionRunner> taskList;
 
@@ -21,15 +17,14 @@ public class DimensionReductionRunnerManager {
 	context.dimensionReductionCalculated.addListener(this::onDimensionReductionCalculated);
     }
 
-    public void addTask(LoadedHierarchy loadedHierarchy, FeatureExtraction dimensionReduction) {
-	DimensionReductionRunner dimensionReductionRunner = new DimensionReductionRunner(loadedHierarchy,
-		dimensionReduction, context.dimensionReductionCalculated);
+    public void addTask(LoadedHierarchy loadedHierarchy, DimensionReductionI dimensionReduction) {
+	DimensionReductionRunner dimensionReductionRunner = new DimensionReductionRunner(loadedHierarchy, dimensionReduction,
+		context.dimensionReductionCalculated);
 	dimensionReductionRunner.start();
 	taskList.add(dimensionReductionRunner);
     }
 
-    public boolean removeTask(LoadedHierarchy loadedHierarchy,
-	    Class<? extends FeatureExtraction> dimensionReductionClass) {
+    public boolean removeTask(LoadedHierarchy loadedHierarchy, Class<? extends DimensionReductionI> dimensionReductionClass) {
 	for (DimensionReductionRunner reductionRunner : taskList) {
 	    if (reductionRunner.isTheSame(loadedHierarchy, dimensionReductionClass)) {
 		taskList.remove(reductionRunner);
@@ -40,12 +35,10 @@ public class DimensionReductionRunnerManager {
     }
 
     public void onDimensionReductionCalculated(CalculatedDimensionReduction calculatedDimensionReduction) {
-	removeTask(calculatedDimensionReduction.inputLoadedHierarchy,
-		calculatedDimensionReduction.dimensionReduction.getClass());
+	removeTask(calculatedDimensionReduction.inputLoadedHierarchy, calculatedDimensionReduction.dimensionReduction.getClass());
     }
 
-    public boolean interuptTask(LoadedHierarchy loadedHierarchy,
-	    Class<? extends FeatureExtraction> dimensionReductionClass) {
+    public boolean interuptTask(LoadedHierarchy loadedHierarchy, Class<? extends DimensionReductionI> dimensionReductionClass) {
 	for (DimensionReductionRunner reductionRunner : taskList) {
 	    if (reductionRunner.isTheSame(loadedHierarchy, dimensionReductionClass)) {
 		reductionRunner.myInterrupt();

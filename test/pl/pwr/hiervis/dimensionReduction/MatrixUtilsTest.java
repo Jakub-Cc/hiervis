@@ -7,6 +7,8 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.pwr.hiervis.dimensionReduction.methods.core.MatrixUtils;
+
 public class MatrixUtilsTest {
 
 	double[][] matrix_1;

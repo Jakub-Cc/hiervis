@@ -20,10 +20,16 @@ public interface FunctionParameters {
     public class BooleanType extends DataType {
 	private boolean defaultValue;
 	private String[] enableParameterNames;
+	private Function2p<Integer> enabled;
 
-	public BooleanType(boolean defaultValue, String... enableParameterName) {
+	public BooleanType(boolean defaultValue, Function2p<Integer> enabled, String... enableParameterName) {
 	    this.defaultValue = defaultValue;
 	    this.enableParameterNames = enableParameterName;
+	    this.enabled = enabled;
+	}
+
+	public BooleanType(boolean defaultValue, String... enableParameterName) {
+	    this(defaultValue, (x, y) -> 1, enableParameterName);
 	}
 
 	public boolean getDefaultValue() {
@@ -32,6 +38,10 @@ public interface FunctionParameters {
 
 	public String[] getEnableParameterNames() {
 	    return enableParameterNames.clone();
+	}
+
+	public Function2p<Integer> isEnabled() {
+	    return enabled;
 	}
 
 	@SuppressWarnings("unused")
@@ -116,10 +126,6 @@ public interface FunctionParameters {
 	public IntegerType(Function2p<Integer> minimumF, Function2p<Integer> maximumF, Function2p<Integer> defaultValueF) {
 	    super(minimumF, maximumF, defaultValueF);
 	}
-    }
-
-    public interface Function2p<T> {
-	public T function(T points, T dimensions);
     }
 
     public static Class<BooleanType> BOOLEAN = BooleanType.class;

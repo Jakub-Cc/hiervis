@@ -17,7 +17,7 @@ import basic_hierarchy.common.HierarchyBuilder;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.DimensionReductionManager;
-import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.hierarchy.HierarchyLoaderThread;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
@@ -65,7 +65,7 @@ public class HVContext {
     public final Event<HVConfig> configChanged = new Event<>();
 
     /** Sent when dimension method is performed. */
-    public final Event<FeatureExtraction> dimensionReductionCalculating = new Event<FeatureExtraction>();
+    public final Event<DimensionReductionI> dimensionReductionCalculating = new Event<DimensionReductionI>();
     /** Sent when dimension method is done calculating. */
     public final Event<CalculatedDimensionReduction> dimensionReductionCalculated = new Event<CalculatedDimensionReduction>();
     /** Sent when dimension method is selected. */
@@ -88,13 +88,22 @@ public class HVContext {
 
     private DimensionReductionManager dimensionReductionManager;
 
-    public HVContext() {
+    private HVContext() {
 	setConfig(new HVConfig());
 
 	measureManager = new MeasureManager();
 	dimensionReductionManager = new DimensionReductionManager();
 
 	hierarchyChanged.addListener(this::onHierarchyChanged);
+    }
+
+    private static HVContext hvContext;
+
+    public static HVContext getContext() {
+	if (hvContext == null) {
+	    hvContext = new HVContext();
+	}
+	return hvContext;
     }
 
     public void createGUI(String subtitle) {
@@ -395,4 +404,5 @@ public class HVContext {
     public DimensionReductionManager getDimensionReductionMenager() {
 	return dimensionReductionManager;
     }
+
 }

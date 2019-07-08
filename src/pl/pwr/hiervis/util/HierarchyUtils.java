@@ -79,6 +79,20 @@ public class HierarchyUtils {
 	return matrix;
     }
 
+    public static String[] getHierarchyNames(Hierarchy source) {
+	String[] dimensionNames;
+	if (source.getDataNames() == null) {
+	    dimensionNames = new String[source.getRoot().getSubtreeInstances().getFirst().getData().length];
+	    for (int i = 0; i < dimensionNames.length; i++) {
+		dimensionNames[i] = "dimension " + (i + 1);
+	    }
+	}
+	else {
+	    dimensionNames = source.getDataNames();
+	}
+	return dimensionNames;
+    }
+
     /**
      * Returns a copy of the specified hierarchy. The returned copy is a hierarchy containing
      * all instances but with removed dimensions

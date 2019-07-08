@@ -2,14 +2,11 @@ package pl.pwr.hiervis.ui.jakubTestuje;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.JFrame;
@@ -35,14 +32,9 @@ import org.flexdock.view.Viewport;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.methods.InfiniteFS;
-import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
-import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelection;
-import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelectionResult;
+import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionWrapInstanceVisualizationsFrame;
 import pl.pwr.hiervis.dimensionReduction.ui.DropDimensionDialog;
-import pl.pwr.hiervis.dimensionReduction.ui.FeatureSelectionDialog;
-import pl.pwr.hiervis.dimensionReduction.ui.FeatureSelectionResultDialog;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.Event;
 import pl.pwr.hiervis.util.HierarchyUtils;
@@ -71,10 +63,11 @@ public class DockerUI extends JFrame implements DockingConstants {
     public static void main(String[] args) {
 	SwingUtility.setPlaf("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
-	HVContext HVcontext = new HVContext();
+	HVContext HVcontext = HVContext.getContext();
 	HVcontext.createGUI("HierVis");
 
 	EventQueue.invokeLater(() -> startup(HVcontext));
+
     }
 
     public DockerUI(HVContext hvContext) {
@@ -88,9 +81,9 @@ public class DockerUI extends JFrame implements DockingConstants {
 	context.hierarchyChanged.addListener(this::onHierarchyChanged);
 	context.getHierarchyFrame().hierarchyTabClosed.addListener(this::onHierarchyTabClosed);
 
-	context.dimensionReductionCalculating.addListener(new Consumer<FeatureExtraction>() {
+	context.dimensionReductionCalculating.addListener(new Consumer<DimensionReductionI>() {
 	    @Override
-	    public void accept(FeatureExtraction t) {
+	    public void accept(DimensionReductionI t) {
 		viewVis.revalidate();
 		viewVis.repaint();
 	    }
@@ -189,35 +182,7 @@ public class DockerUI extends JFrame implements DockingConstants {
 	createFileMenu(menuBar);
 	createEditMenu(menuBar);
 	createAboutMenu(menuBar);
-	createFSMenu(menuBar);
-    }
 
-    private void createFSMenu(JMenuBar menuBar) {
-	JMenu jmenu = new JMenu("FS");
-	jmenu.setMnemonic('G');
-
-	JMenuItem jMenuItem = new JMenuItem("InfiniteFS");
-	jMenuItem.setMnemonic('O');
-	jMenuItem.addActionListener(new ActionListener() {
-
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
-		FeatureSelectionDialog<FeatureSelection> fsDialog = new FeatureSelectionDialog<FeatureSelection>(new InfiniteFS());
-		try {
-		    FeatureSelection fs = fsDialog.showDialog(context.getHierarchy().getMainHierarchy());
-		    List<FeatureSelectionResult> selectionResult = fs.selectFeatures(context.getHierarchy());
-		    FeatureSelectionResultDialog resultDialog = new FeatureSelectionResultDialog(selectionResult, context);
-		    resultDialog.showDialog();
-		}
-		catch (Exception e1) {
-		    e1.printStackTrace();
-		}
-
-	    }
-	});
-	jmenu.add(jMenuItem);
-
-	menuBar.add(jmenu);
     }
 
     private void createFileMenu(JMenuBar menuBar) {
@@ -302,8 +267,8 @@ public class DockerUI extends JFrame implements DockingConstants {
 	try {
 	    Date d = new Date(DockerUI.class.getResource("DockerUI.class").openConnection().getLastModified());
 
-	    String message = "Hierarchical Visualizator\n" + "Version copliled on: " + d.toString() + "\n"
-		    + "Sourecode avaliable on: https://github.com/toSterr/hiervis";
+	    String message = "Hierarchical Visualizator (ver. 2.1)\n" + "Version copiled on: " + d.toString() + "\n"
+		    + "Sourecode avaliable at: https://github.com/lpolech/hiervis";
 
 	    JOptionPane.showMessageDialog(this, message, "About", dialogButton);
 

@@ -82,7 +82,7 @@ public final class HierVis {
 
 	    System.exit(0);
 	}
-	HVContext context = new HVContext();
+	HVContext context = HVContext.getContext();
 	context.setConfig(loadConfig());
 
 	File inputFile = null;

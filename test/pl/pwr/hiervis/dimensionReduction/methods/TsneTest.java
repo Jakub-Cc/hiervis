@@ -9,6 +9,7 @@ import org.junit.Test;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.TestCommon;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.featureExtraction.Tsne;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class TsneTest {
@@ -20,8 +21,7 @@ public class TsneTest {
     public void initialize() {
 	dimensionReduction = new Tsne(100, 1, 0.5, false, false, 3, true, false, 2);
 	hierarchy = TestCommon.getTwoTwoGroupsHierarchy();
-	loadedHierarchy = new LoadedHierarchy(hierarchy,
-		new LoadedHierarchy.Options(false, false, false, false, false));
+	loadedHierarchy = new LoadedHierarchy(hierarchy, new LoadedHierarchy.Options(false, false, false, false, false));
     }
 
     @Test
@@ -29,7 +29,7 @@ public class TsneTest {
 	dimensionReduction = new Tsne(100, 1, 0.5, true, false, 3, true, false, 2);
 	assertNotEquals(null, dimensionReduction);
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
-	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);
+	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy.getMainHierarchy());
 	assertEquals(2, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 
@@ -49,7 +49,7 @@ public class TsneTest {
     @Test
     public void testReduceHierarchy() {
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
-	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);
+	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy.getMainHierarchy());
 	assertEquals(2, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 

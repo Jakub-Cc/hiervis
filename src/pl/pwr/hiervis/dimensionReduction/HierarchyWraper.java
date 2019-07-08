@@ -1,7 +1,11 @@
 package pl.pwr.hiervis.dimensionReduction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelectionResult;
 
 public class HierarchyWraper {
     public Hierarchy hierarchy;
@@ -9,11 +13,15 @@ public class HierarchyWraper {
     private Hierarchy[] reducedHierarchy;
     private DimensionReductionManager dimensionReductionManager;
 
+    private List<FeatureSelectionResult>[] featureSelectionResults;
+
     public HierarchyWraper(Hierarchy hierarchy) {
 	this.originalHierarchy = hierarchy;
 	this.hierarchy = hierarchy;
 	this.dimensionReductionManager = new DimensionReductionManager();
 	this.setReducedHierarchy(new Hierarchy[dimensionReductionManager.getSize()]);
+
+	this.featureSelectionResults = new ArrayList[dimensionReductionManager.getSize()];
     }
 
     public HierarchyWraper() {
@@ -80,6 +88,25 @@ public class HierarchyWraper {
 	if (index != -1) {
 	    reducedHierarchy[index] = calculatedDimensionReduction.outputHierarchy;
 	}
+    }
+
+    public void addFeatureSelectionResult(CalculatedDimensionReduction calculatedDimensionReduction) {
+
+	int index = dimensionReductionManager.getIndex(calculatedDimensionReduction.dimensionReduction);
+	if (index != -1) {
+	    featureSelectionResults[index] = calculatedDimensionReduction.fsResult;
+	}
+    }
+
+    public List<FeatureSelectionResult> getFSResult(int index) {
+	if (index == 0) {
+	    return null;
+	}
+	else if (index > 0 && index - 1 < dimensionReductionManager.getSize()) {
+	    return featureSelectionResults[index - 1];
+	}
+	else
+	    return null;
     }
 
 }

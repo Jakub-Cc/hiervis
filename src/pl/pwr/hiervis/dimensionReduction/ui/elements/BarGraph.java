@@ -2,126 +2,86 @@ package pl.pwr.hiervis.dimensionReduction.ui.elements;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
-import pl.pwr.hiervis.core.HVConstants;
-import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.prefuse.DisplayEx;
-import pl.pwr.hiervis.prefuse.histogram.HistogramGraph;
-import pl.pwr.hiervis.prefuse.histogram.HistogramTable;
-import prefuse.Visualization;
-import prefuse.data.Table;
+import javax.swing.JPanel;
 
-public class BarGraph extends DisplayEx {
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.CategoryToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 
-    private static final long serialVersionUID = 5267764077101440361L;
-    private double[] data;
-    private String[] labels;
+public class BarGraph {
 
-    public BarGraph(double[] data, String[] labels, HVContext context) {
-	super(new Visualization());
+    public static JPanel CreateBarGraph(double[] data, String[] labels, Color backgroundColor, Color barColor) {
 
-	this.data = data;
-	this.labels = labels;
-	this.m_vis = createHistogramDisplayFor(context).getVisualization();
+	CategoryDataset dataset = createDataset(data, labels);
+	JFreeChart chart = createChart(dataset, backgroundColor, barColor);
+
+	ChartPanel chartPanel = new ChartPanel(chart, false);
+	chartPanel.setPreferredSize(new Dimension(500, 270));
+	chartPanel.setMouseZoomable(false);
+	chartPanel.setPopupMenu(null);
+
+	return chartPanel;
     }
 
-    private Table createTable() {
-	Table table = new Table();
-
-	table.addColumn("points", double.class);
-	table.addColumn(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME, String.class);
-	table.addColumn(HVConstants.PREFUSE_INSTANCE_AXIS_X_COLUMN_NAME, String.class);
+    private static CategoryDataset createDataset(double[] data, String[] labels) {
+	DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
 	for (int i = 0; i < data.length; i++) {
-	    int row = table.addRow();
-	    table.set(row, "points", data[i]);
-	    table.set(row, HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME, labels[i]);
-	    table.set(row, HVConstants.PREFUSE_INSTANCE_AXIS_X_COLUMN_NAME, labels[i]);
-	}
+	    dataset.addValue(data[i], "", labels[i]);
 
-	return table;
+	}
+	return dataset;
     }
 
-    private HistogramTable cheatCreateHistoTable(Table table) {
-	HistogramTable histoTable = new HistogramTable(table, table.getRowCount());
-	for (int i = 0; i < table.getRowCount(); i++) {
-	    histoTable.set(i, 0, table.get(i, 0));
-	    histoTable.set(i, 1, table.get(i, 0));
-	    histoTable.set(i, 2, table.get(i, 1));
-	    histoTable.set(i, 3, table.get(i, 0));
-	}
-	return histoTable;
-    }
+    private static JFreeChart createChart(CategoryDataset dataset, Color backgroundColor, Color barColor) {
+	String title = "Top " + dataset.getColumnCount() + " Scores";
+	JFreeChart chart = ChartFactory.createBarChart(title, null, "Score", dataset);
+	chart.setBackgroundPaint(backgroundColor);
+	chart.removeLegend();
 
-    /**
-     * Creates a histogram display for the specified dimension
-     * 
-     * @param dim dimension index
-     * @return the display
-     */
-    private DisplayEx createHistogramDisplayFor(HVContext context) {
-	// Table table = context.getHierarchy().getInstanceTable();
+	CategoryPlot plot = (CategoryPlot) chart.getPlot();
+	plot.setBackgroundPaint(backgroundColor);
+	plot.setRangeGridlinePaint(Color.BLACK);
 
-	Table table2 = createTable();
+	CategoryAxis domainAxis = plot.getDomainAxis();
+	domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
 
-	// Color histogramColor = context.getConfig().getHistogramColor();
-	Color histogramColor = Color.BLUE;
-	// Color backgroundColor = context.getConfig().getBackgroundColor();
-	Color backgroundColor = Color.WHITE;
+	NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+	rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-	HistogramTable histoTable = cheatCreateHistoTable(table2);
-	int visWidth = 200;
-	int visHeight = 200;
-	/*
-	 * display.addControlListener(new PanControl(true)); ZoomScrollControl zoomControl = new
-	 * ZoomScrollControl(); zoomControl.setModifierControl(true);
-	 * display.addControlListener(zoomControl); display.addMouseWheelListener(new
-	 * MouseWheelEventBubbler(display, e -> !e.isControlDown() && !e.isAltDown()));
-	 * display.addControlListener(new CustomToolTipControl(item -> { StringBuilder buf = new
-	 * StringBuilder(); buf.append("<html>");
-	 * buf.append("Count: ").append(item.get(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET +
-	 * dim * 2 + 1)); // TODO: Add bin value range buf.append("</html>"); return
-	 * buf.toString(); }));
-	 */
+	BarRenderer renderer = (BarRenderer) plot.getRenderer();
+	renderer.setDrawBarOutline(false);
 
-	HistogramGraph display = new HistogramGraph(histoTable, table2.getColumnName(0), histogramColor);
+	renderer.setBarPainter(new StandardBarPainter());
 
-	display.setBackground(backgroundColor);
-	display.setPreferredSize(new Dimension(visWidth, visHeight));
+	CategoryToolTipGenerator tooltipGenerator = new CategoryToolTipGenerator() {
 
-	display.addKeyListener(new KeyAdapter() {
 	    @Override
-	    public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ALT) {
-		    // Consume alt key releases, so that the display doesn't lose focus
-		    // (default behaviour of Alt key on Windows is to switch to menu bar when Alt
-		    // is pressed, but this window has no menu bar anyway)
-		    e.consume();
-		}
-	    }
-	});
+	    public String generateToolTip(CategoryDataset dataset, int series, int item) {
+		// TODO tak
 
-	display.addComponentListener(new ComponentAdapter() {
-	    public void componentResized(ComponentEvent e) {
-		redrawDisplayIfVisible((DisplayEx) e.getComponent());
+		String s = "#" + (item + 1) + " " + dataset.getColumnKey(item) + " (" + dataset.getValue(series, item) + ")";
+		return s;
 	    }
-	});
+	};
+	// and assign it to the renderer
+	renderer.setBaseToolTipGenerator(tooltipGenerator);
 
-	return display;
+	BarRenderer r = (BarRenderer) chart.getCategoryPlot().getRenderer();
+
+	r.setSeriesPaint(0, barColor);
+
+	return chart;
     }
 
-    private void redrawDisplayIfVisible(DisplayEx d) {
-	if (d.isVisible()) {
-	    // Unzoom the display so that drawing is not botched.
-	    // Utils.unzoom( d, 0 );
-	    d.getVisualization().run("draw");
-	}
-	else {
-	    d.reset();
-	}
-    }
 }

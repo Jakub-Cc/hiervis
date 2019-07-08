@@ -1,20 +1,25 @@
 package pl.pwr.hiervis.dimensionReduction;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.interfaces.Hierarchy;
+import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelection;
+import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureSelectionResult;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.Event;
 
 public class DimensionReductionRunner extends Thread {
     private static final Logger log = LogManager.getLogger(DimensionReductionRunner.class);
-    private FeatureExtraction dimensionReduction;
+    private DimensionReductionI dimensionReduction;
     private LoadedHierarchy inputLoadedHierarchy;
     private Event<CalculatedDimensionReduction> brodcastEvent;
 
-    public DimensionReductionRunner(LoadedHierarchy loadedHierarchy, FeatureExtraction dimensionReduction,
+    public DimensionReductionRunner(LoadedHierarchy loadedHierarchy, DimensionReductionI dimensionReduction,
 	    Event<CalculatedDimensionReduction> brodcastEvent) {
 	inputLoadedHierarchy = loadedHierarchy;
 	this.dimensionReduction = dimensionReduction;
@@ -23,25 +28,31 @@ public class DimensionReductionRunner extends Thread {
 	setDaemon(true);
     }
 
-    public boolean isTheSame(LoadedHierarchy loadedHierarchy,
-	    Class<? extends FeatureExtraction> dimensionReductionClass) {
-	return (inputLoadedHierarchy == loadedHierarchy
-		&& this.dimensionReduction.getClass() == dimensionReductionClass);
+    public boolean isTheSame(LoadedHierarchy loadedHierarchy, Class<? extends DimensionReductionI> dimensionReductionClass) {
+	return (inputLoadedHierarchy == loadedHierarchy && this.dimensionReduction.getClass() == dimensionReductionClass);
     }
 
+    /*
+     * No other way to stop calculation.
+     */
+    @SuppressWarnings("deprecation")
     public void myInterrupt() {
-	// System.out.println("interupt?");
-	// this.interrupt();
 	this.stop();
     }
 
     public void run() {
 	Hierarchy outputHierarchy = null;
+	List<FeatureSelectionResult> selectionResult = null;
 	try {
 	    long start = System.currentTimeMillis();
+	    Hierarchy inputHierarchy = inputLoadedHierarchy.getHierarchyWraper().getOriginalHierarchy();
+	    if (FeatureExtraction.class.isAssignableFrom(dimensionReduction.getClass())) {
+		outputHierarchy = ((FeatureExtraction) dimensionReduction).reduceHierarchy(inputHierarchy);
 
-	    outputHierarchy = dimensionReduction.reduceHierarchy(inputLoadedHierarchy);
-
+	    }
+	    else if (FeatureSelection.class.isAssignableFrom(dimensionReduction.getClass())) {
+		selectionResult = ((FeatureSelection) dimensionReduction).selectFeatures(inputHierarchy);
+	    }
 	    long elapsedTime = System.currentTimeMillis() - start;
 	    log.trace(dimensionReduction.getSimpleName() + " calculated in: " + elapsedTime / (1000F) + " sec");
 	}
@@ -55,8 +66,7 @@ public class DimensionReductionRunner extends Thread {
 	    log.trace(e);
 	}
 	finally {
-	    brodcastEvent.broadcast(
-		    new CalculatedDimensionReduction(inputLoadedHierarchy, dimensionReduction, outputHierarchy));
+	    brodcastEvent.broadcast(new CalculatedDimensionReduction(inputLoadedHierarchy, dimensionReduction, outputHierarchy, selectionResult));
 	}
     }
 

@@ -2,18 +2,25 @@ package pl.pwr.hiervis.hk.ui;
 
 import java.awt.GridBagLayout;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JToolTip;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.text.NumberFormatter;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,13 +43,13 @@ public class HKOptionsPanel extends JPanel {
     private LoadedHierarchy hierarchy;
     private Node node;
 
-    private JTextField txtClusters = null;
-    private JTextField txtIterations = null;
-    private JTextField txtRepeats = null;
-    private JTextField txtDendrogram = null;
-    private JTextField txtMaxNodes = null;
-    private JTextField txtEpsilon = null;
-    private JTextField txtLittleVal = null;
+    private JFormattedTextField txtClusters = null;
+    private JFormattedTextField txtIterations = null;
+    private JFormattedTextField txtRepeats = null;
+    private JFormattedTextField txtDendrogram = null;
+    private JFormattedTextField txtMaxNodes = null;
+    private JFormattedTextField txtEpsilon = null;
+    private JFormattedTextField txtLittleVal = null;
     private JCheckBox cboxTrueClass = null;
     private JCheckBox cboxInstanceNames = null;
     private JCheckBox cboxDiagonalMatrix = null;
@@ -74,37 +81,37 @@ public class HKOptionsPanel extends JPanel {
 	setLayout(layout);
 
 	JLabel lblClusters = new JLabel("[-k] Clusters:");
-	txtClusters = buildNumberTextField();
+	txtClusters = buildNumberTextField(1, Integer.MAX_VALUE);
 	add(lblClusters, builder.insets(5).anchorWest().position(0, 0).build());
 	add(txtClusters, builder.insets(5).anchorEast().position(1, 0).build());
 
 	JLabel lblIterations = new JLabel("[-n] Iterations:");
-	txtIterations = buildNumberTextField();
+	txtIterations = buildNumberTextField(1, Integer.MAX_VALUE);
 	add(lblIterations, builder.insets(5).anchorWest().position(0, 1).build());
 	add(txtIterations, builder.insets(5).anchorEast().position(1, 1).build());
 
 	JLabel lblRepeats = new JLabel("[-r] Repeats:");
-	txtRepeats = buildNumberTextField();
+	txtRepeats = buildNumberTextField(1, Integer.MAX_VALUE);
 	add(lblRepeats, builder.insets(5).anchorWest().position(0, 2).build());
 	add(txtRepeats, builder.insets(5).anchorEast().position(1, 2).build());
 
 	JLabel lblDendrogram = new JLabel("[-s] Max Dendrogram Height:");
-	txtDendrogram = buildNumberTextField();
+	txtDendrogram = buildNumberTextField(1, Integer.MAX_VALUE);
 	add(lblDendrogram, builder.insets(5).anchorWest().position(0, 3).build());
 	add(txtDendrogram, builder.insets(5).anchorEast().position(1, 3).build());
 
 	JLabel lblMaxNodes = new JLabel("[-w] Max Generated Nodes:");
-	txtMaxNodes = buildNumberTextField();
+	txtMaxNodes = buildNumberTextField(-1, Integer.MAX_VALUE);
 	add(lblMaxNodes, builder.insets(5).anchorWest().position(0, 4).build());
 	add(txtMaxNodes, builder.insets(5).anchorEast().position(1, 4).build());
 
 	JLabel lblEpsilon = new JLabel("[-e] Epsilon:");
-	txtEpsilon = buildNumberTextField();
+	txtEpsilon = buildNumberTextField(Integer.MIN_VALUE, Integer.MAX_VALUE);
 	add(lblEpsilon, builder.insets(5).anchorWest().position(0, 5).build());
 	add(txtEpsilon, builder.insets(5).anchorEast().position(1, 5).build());
 
 	JLabel lblLittleVal = new JLabel("[-l] Little Value:");
-	txtLittleVal = buildNumberTextField();
+	txtLittleVal = buildNumberTextField(Integer.MIN_VALUE, Integer.MAX_VALUE);
 	add(lblLittleVal, builder.insets(5).anchorWest().position(0, 6).build());
 	add(txtLittleVal, builder.insets(5).anchorEast().position(1, 6).build());
 
@@ -149,37 +156,43 @@ public class HKOptionsPanel extends JPanel {
 	cboxTrueClass.setEnabled(hierarchy.options.hasTrueClassAttribute);
 	cboxInstanceNames.setEnabled(hierarchy.options.hasInstanceNameAttribute);
 
-	txtClusters.setText("" + cfg.getHkClusters());
-	txtIterations.setText("" + cfg.getHkIterations());
-	txtRepeats.setText("" + cfg.getHkRepetitions());
-	txtDendrogram.setText("" + cfg.getHkDendrogramHeight());
-	txtMaxNodes.setText("" + cfg.getHkMaxNodes());
-	txtEpsilon.setText("" + cfg.getHkEpsilon());
-	txtLittleVal.setText("" + cfg.getHkLittleValue());
+	// txtClusters.setValue(cfg.getHkClusters());
+	txtClusters.setValue(hierarchy.options.HkClusters);
 
-	cboxTrueClass.setSelected(cfg.isHkWithTrueClass() && cboxTrueClass.isEnabled());
-	cboxInstanceNames.setSelected(cfg.isHkWithInstanceNames() && cboxInstanceNames.isEnabled());
-	cboxDiagonalMatrix.setSelected(cfg.isHkWithDiagonalMatrix());
-	cboxNoStaticCenter.setSelected(cfg.isHkNoStaticCenter());
-	cboxGenerateImages.setSelected(cfg.isHkGenerateImages());
-	cboxVerbose.setSelected(cfg.isHkVerbose());
-    }
+	// txtIterations.setValue(cfg.getHkIterations());
+	txtIterations.setValue(hierarchy.options.HkIterations);
 
-    // TODO decide how to validate field to handle input errors
-    public boolean validateFields() {
-	try {
-	    Integer.parseInt(getText(txtClusters)); // -k
-	    Integer.parseInt(getText(txtIterations)); // -n
-	    Integer.parseInt(getText(txtRepeats)); // -r
-	    Integer.parseInt(getText(txtDendrogram)); // -s
-	    Integer.parseInt(getText(txtMaxNodes)); // -w
-	    Integer.parseInt(getText(txtEpsilon)); // -e
-	    Integer.parseInt(getText(txtLittleVal)); // -l
-	}
-	catch (Exception e) {
-	    return false;
-	}
-	return true;
+	// txtRepeats.setValue(cfg.getHkRepetitions());
+	txtRepeats.setValue(hierarchy.options.HkRepetitions);
+
+	// txtDendrogram.setValue(cfg.getHkDendrogramHeight());
+	txtDendrogram.setValue(hierarchy.options.HkDendrogramHeight);
+
+	// txtMaxNodes.setValue(cfg.getHkMaxNodes());
+	txtMaxNodes.setValue(hierarchy.options.HkMaxNodes);
+
+	// txtEpsilon.setValue(cfg.getHkEpsilon());
+	txtEpsilon.setValue(hierarchy.options.HkEpsilon);
+
+	// txtLittleVal.setValue(cfg.getHkLittleValue());
+	txtLittleVal.setValue(hierarchy.options.HkLittleValue);
+
+	// cboxTrueClass.setSelected(cfg.isHkWithTrueClass() && cboxTrueClass.isEnabled());
+	cboxTrueClass.setSelected(hierarchy.options.useTrueClassAtribute);
+
+	// cboxInstanceNames.setSelected(cfg.isHkWithInstanceNames() &&
+	// cboxInstanceNames.isEnabled());
+
+	cboxInstanceNames.setSelected(hierarchy.options.useInstanceNameAttribute);
+
+	// cboxDiagonalMatrix.setSelected(cfg.isHkWithDiagonalMatrix());
+	cboxDiagonalMatrix.setSelected(hierarchy.options.useHkWithDiagonalMatrix);
+	// cboxNoStaticCenter.setSelected(cfg.isHkNoStaticCenter());
+	cboxNoStaticCenter.setSelected(hierarchy.options.useHkNoStaticCenter);
+	// cboxGenerateImages.setSelected(cfg.isHkGenerateImages());
+	cboxGenerateImages.setSelected(hierarchy.options.useHkGenerateImages);
+	// cboxVerbose.setSelected(cfg.isHkVerbose());
+	cboxVerbose.setSelected(hierarchy.options.useHkVerbose);
     }
 
     public void setCarret() {
@@ -206,18 +219,31 @@ public class HKOptionsPanel extends JPanel {
 	// Update HK++ config
 	HVConfig cfg = context.getConfig();
 	cfg.setHkClusters(clusters);
+	hierarchy.options.HkClusters = clusters;
 	cfg.setHkIterations(iterations);
+	hierarchy.options.HkIterations = iterations;
 	cfg.setHkRepetitions(repeats);
+	hierarchy.options.HkRepetitions = repeats;
 	cfg.setHkDendrogramHeight(dendrogramHeight);
+	hierarchy.options.HkDendrogramHeight = dendrogramHeight;
 	cfg.setHkMaxNodes(maxNodes);
+	hierarchy.options.HkMaxNodes = maxNodes;
 	cfg.setHkEpsilon(epsilon);
+	hierarchy.options.HkEpsilon = epsilon;
 	cfg.setHkLittleValue(littleVal);
+	hierarchy.options.HkLittleValue = littleVal;
 	cfg.setHkWithTrueClass(cboxTrueClass.isSelected());
+	hierarchy.options.useTrueClassAtribute = cboxTrueClass.isSelected();
 	cfg.setHkWithInstanceNames(cboxInstanceNames.isSelected());
+	hierarchy.options.useInstanceNameAttribute = cboxInstanceNames.isSelected();
 	cfg.setHkWithDiagonalMatrix(cboxDiagonalMatrix.isSelected());
+	hierarchy.options.useHkWithDiagonalMatrix = cboxDiagonalMatrix.isSelected();
 	cfg.setHkNoStaticCenter(cboxNoStaticCenter.isSelected());
+	hierarchy.options.useHkNoStaticCenter = cboxNoStaticCenter.isSelected();
 	cfg.setHkGenerateImages(cboxGenerateImages.isSelected());
+	hierarchy.options.useHkGenerateImages = cboxGenerateImages.isSelected();
 	cfg.setHkVerbose(cboxVerbose.isSelected());
+	hierarchy.options.useHkVerbose = cboxVerbose.isSelected();
 
 	if (maxNodes < 0) {
 	    maxNodes = Integer.MAX_VALUE;
@@ -248,21 +274,95 @@ public class HKOptionsPanel extends JPanel {
     // ---------------------------------------------------------------------------------------------
     // Helper methods
 
-    private JTextField buildNumberTextField() {
-	// TODO: Verifying user input
-	NumberFormatter formatter = new NumberFormatter(new DecimalFormat("0"));
-	formatter.setValueClass(Integer.class);
-	formatter.setMinimum(Integer.MIN_VALUE);
-	formatter.setMaximum(Integer.MAX_VALUE);
-	formatter.setAllowsInvalid(false);
+    private JFormattedTextField buildNumberTextField(int min, int max) {
 
-	JFormattedTextField result = new JFormattedTextField();
+	NumberFormatter formatter = new IntegerFormatter(min, max);
+
+	JFormattedTextField result = new JFormattedTextField(formatter);
 	result.setHorizontalAlignment(SwingConstants.RIGHT);
 	result.setColumns(10);
 
 	result.addActionListener(this.actionListener);
 
 	return result;
+    }
+
+    private class IntegerFormatter extends NumberFormatter {
+	private int ignoresize;
+	private int max;
+	private int min;
+
+	public IntegerFormatter(int min, int max) {
+	    super(new DecimalFormat("0"));
+	    setValueClass(Integer.class);
+	    setMinimum(min);
+	    setMaximum(max);
+	    this.min = min;
+	    this.max = max;
+	    if (min < 0)
+		ignoresize = 1;
+	    else
+		ignoresize = 0;
+	}
+
+	@Override
+	public Object stringToValue(String text) throws ParseException {
+	    try {
+		int value = (Integer) super.stringToValue(text);
+		if (text.equals("" + value)) {
+		    getFormattedTextField().setValue(value);
+		}
+		else {
+		    validationFailed("Illegal Character Inputed");
+		}
+		return value;
+	    }
+	    catch (Exception e) {
+		if (text.length() > ignoresize) {
+		    if (e.getMessage().equals("Value not within min/max range")) {
+			validationFailed("Value must be in [" + this.min + "," + this.max + "] range");
+		    }
+		    else if (e.getMessage().equals("Format.parseObject(String) failed")) {
+			validationFailed("Illegal Character Inputed");
+		    }
+		    else {
+			logger.error(e.getMessage());
+		    }
+
+		    throw e;
+		}
+		return getFormattedTextField().getValue();
+	    }
+	}
+
+	private void validationFailed(String message) {
+	    showPopupMessage(getFormattedTextField(), message);
+	    getFormattedTextField().setText("" + getFormattedTextField().getValue());
+	}
+    }
+
+    private void showPopupMessage(JComponent component, String message) {
+	try {
+	    JToolTip toolTip = new JToolTip();
+	    toolTip.setTipText(message);
+	    int x = component.getLocationOnScreen().x + component.getWidth();
+	    int y = component.getLocationOnScreen().y;
+
+	    final Popup popup = PopupFactory.getSharedInstance().getPopup(component, toolTip, x, y);
+	    Timer timer = new Timer(3000, new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+		    popup.hide();
+		}
+	    });
+	    timer.setRepeats(false);
+	    timer.start();
+	    popup.show();
+
+	}
+	catch (java.awt.IllegalComponentStateException e) {
+	    //
+	}
     }
 
     /**

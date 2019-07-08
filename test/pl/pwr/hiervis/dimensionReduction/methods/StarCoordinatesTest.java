@@ -8,6 +8,7 @@ import org.junit.Test;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.TestCommon;
 import pl.pwr.hiervis.dimensionReduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimensionReduction.methods.featureExtraction.StarCoordinates;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class StarCoordinatesTest {
@@ -20,14 +21,13 @@ public class StarCoordinatesTest {
     public void initialize() {
 	dimensionReduction = new StarCoordinates();
 	hierarchy = TestCommon.getTwoTwoGroupsHierarchy();
-	loadedHierarchy = new LoadedHierarchy(hierarchy,
-		new LoadedHierarchy.Options(false, false, false, false, false));
+	loadedHierarchy = new LoadedHierarchy(hierarchy, new LoadedHierarchy.Options(false, false, false, false, false));
     }
 
     @Test
     public void testReduceHierarchy() {
 	assertEquals(4, loadedHierarchy.getMainHierarchy().getRoot().getNodeInstances().getFirst().getData().length);
-	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy);
+	Hierarchy hierarchy = dimensionReduction.reduceHierarchy(loadedHierarchy.getMainHierarchy());
 	assertEquals(2, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 

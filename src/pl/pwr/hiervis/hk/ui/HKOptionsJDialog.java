@@ -8,17 +8,16 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.core.HVContext;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.KeyBinds;
 import pl.pwr.hiervis.hk.HKPlusPlusWrapper;
 import pl.pwr.hiervis.util.SwingUIUtils;
 import pl.pwr.hiervis.util.ui.GridBagConstraintsBuilder;
@@ -107,18 +106,7 @@ public class HKOptionsJDialog extends JDialog {
 
 	btnGenerate.setMnemonic(KeyEvent.VK_ENTER);
 
-	setKeybindCancel((JPanel) getContentPane());
-	setKeybindConfirm((JPanel) getContentPane());
-
-    }
-
-    private void setKeybindCancel(JComponent contentPanel) {
-	// escape button to cancel dialog
-	contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC");
-	contentPanel.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC");
-	contentPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC");
-
-	contentPanel.getActionMap().put("ESC", new AbstractAction() {
+	KeyBinds.setKeybindESC((JPanel) getContentPane(), new AbstractAction() {
 	    private static final long serialVersionUID = 1L;
 
 	    @Override
@@ -126,14 +114,8 @@ public class HKOptionsJDialog extends JDialog {
 		dispose();
 	    }
 	});
-    }
 
-    private void setKeybindConfirm(JComponent contentPanel) {
-	contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
-	contentPanel.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
-	contentPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
-
-	contentPanel.getActionMap().put("ENTER", generateAction);
+	KeyBinds.setKeybindENTER((JPanel) getContentPane(), generateAction);
     }
 
     protected void generate(ActionEvent e) {
