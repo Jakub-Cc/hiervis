@@ -21,6 +21,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -180,9 +181,13 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	// -----------------------------------------------------------------------------------------
 
 	private void createGUI() {
-		tabPane = new JTabbedPane();
 
-		getContentPane().add(tabPane, BorderLayout.CENTER);
+		tabPane = new JTabbedPane();
+		JScrollPane scrol = new JScrollPane(tabPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+		// getContentPane().add(tabPane, BorderLayout.CENTER);
+		getContentPane().add(scrol, BorderLayout.CENTER);
 
 		// Reinsert the original mouse listener, so that ours is first in the
 		// notification order.
@@ -364,10 +369,9 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 		fileDialog.setFileFilter(new FileNameExtensionFilter("*.csv", "csv"));
 
 		if (fileDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-		   for (File file: fileDialog.getSelectedFiles())
-			loadFile(file);
-		}
-		else {
+			for (File file : fileDialog.getSelectedFiles())
+				loadFile(file);
+		} else {
 			log.trace("Loading aborted.");
 		}
 	}
@@ -390,13 +394,11 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 
 				HierarchyUtils.save(fileDialog.getSelectedFile().getAbsolutePath(), lh.getMainHierarchy(), true,
 						lh.options.hasTrueClassAttribute, lh.options.hasInstanceNameAttribute, true);
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				log.error("Error while saving hierarchy: ", e);
 				SwingUIUtils.showErrorDialog("Error occurred while saving the hierarchy:\n\n" + e.getMessage());
 			}
-		}
-		else {
+		} else {
 			log.trace("Saving aborted.");
 		}
 	}
@@ -455,8 +457,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	private boolean fileNotEmpty(File file) {
 		if (file.length() != 0) {
 			return true;
-		}
-		else {
+		} else {
 			SwingUtilities.invokeLater(() -> {
 				SwingUIUtils.showInfoDialog("It is not posible to load a empty file.");
 			});
@@ -503,8 +504,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 			// tab.
 			if (currentDisplay.getVisualization() == HVConstants.EMPTY_VISUALIZATION) {
 				recreateHierarchyVisualizationAsync(currentDisplay);
-			}
-			else {
+			} else {
 				currentDisplay.getVisualization().run("nodeColor");
 				currentDisplay.damageReport();
 				currentDisplay.repaint();
@@ -567,15 +567,11 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	/**
 	 * Creates a handler for file drag'n'drop.
 	 * 
-	 * @param c
-	 *            the component files can be dragged onto
-	 * @param log
-	 *            logger for logging of trace messages
-	 * @param fileExtension
-	 *            file extension that will be accepted for dragging (just the
-	 *            extension, without dot)
-	 * @param fileConsumer
-	 *            the method to invoke when a correct file is dragged
+	 * @param c             the component files can be dragged onto
+	 * @param log           logger for logging of trace messages
+	 * @param fileExtension file extension that will be accepted for dragging (just
+	 *                      the extension, without dot)
+	 * @param fileConsumer  the method to invoke when a correct file is dragged
 	 * @return the {@link FileDrop} object handling the drag'n'drop
 	 */
 	public static FileDrop createFileDrop(Component c, Logger log, String fileExtension, Consumer<File> fileConsumer) {
@@ -585,28 +581,23 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 			public void filesDropped(File[] files) {
 				if (files.length == 0) {
 					log.trace("Drag and drop: recevied no files.");
-				}
-				else if (files.length == 1) {
+				} else if (files.length == 1) {
 					File file = files[0];
 					if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
 						fileConsumer.accept(file);
-					}
-					else {
+					} else {
 						log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
 					}
-				}
-				else {
+				} else {
 					log.trace("Drag and drop: received multiple files, ignoring.");
-					for (File file: files)
-        					{
-        					    if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
-        						fileConsumer.accept(file);
-        					}
-        					else {
-        						log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
-        					}
+					for (File file : files) {
+						if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
+							fileConsumer.accept(file);
+						} else {
+							log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
+						}
 					}
-					
+
 				}
 			}
 		});
