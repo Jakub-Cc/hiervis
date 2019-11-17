@@ -186,7 +186,6 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 		JScrollPane scrol = new JScrollPane(tabPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-		// getContentPane().add(tabPane, BorderLayout.CENTER);
 		getContentPane().add(scrol, BorderLayout.CENTER);
 
 		// Reinsert the original mouse listener, so that ours is first in the
