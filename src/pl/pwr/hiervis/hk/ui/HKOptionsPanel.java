@@ -21,7 +21,6 @@ import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.hk.HKPlusPlusScheaduler;
-import pl.pwr.hiervis.hk.HKPlusPlusWrapper;
 import pl.pwr.hiervis.util.HierarchyUtils;
 import pl.pwr.hiervis.util.ui.GridBagConstraintsBuilder;
 
@@ -176,8 +175,7 @@ public class HKOptionsPanel extends JPanel {
 	 * 
 	 * @param window the window to attach the modal dialog to. Can null to attach
 	 *               the dialog to the window the HK options panel is placed in.
-	 * @return the {@link HKPlusPlusWrapper} instance associated with this
-	 *         subprocess
+	 * @return if the process had been scheduled
 	 */
 	public boolean generate(Window window) {
 		if (!txtClusters.areValidFieldValues() || !txtIterations.areValidFieldValues()

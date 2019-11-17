@@ -21,7 +21,6 @@ import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.hierarchy.HierarchyLoaderThread;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
-import pl.pwr.hiervis.hk.HKPlusPlusWrapper;
 import pl.pwr.hiervis.measures.MeasureManager;
 import pl.pwr.hiervis.ui.FileLoadingOptionsDialog;
 import pl.pwr.hiervis.ui.HierarchyStatisticsFrame;
@@ -78,7 +77,6 @@ public class HVContext {
 
 	/** The raw hierarchy data, as it was loaded from the file. */
 	private LoadedHierarchy currentHierarchy = null;
-	private HKPlusPlusWrapper currentHKWrapper = null;
 
 	private List<LoadedHierarchy> hierarchyList = new ArrayList<LoadedHierarchy>();
 
@@ -177,28 +175,6 @@ public class HVContext {
 
 	public LoadedHierarchy.Options getHierarchyOptions() {
 		return currentHierarchy == null ? LoadedHierarchy.Options.DEFAULT : currentHierarchy.options;
-	}
-
-	public void setCurrentHKWrapper(HKPlusPlusWrapper wrapper) {
-		if (wrapper == null) {
-			throw new IllegalArgumentException("Wrapper must not be null.");
-		}
-		if (currentHKWrapper != null) {
-			throw new IllegalStateException(
-					"Cannot set current wrapper, because the old one has not been disposed of yet.");
-		}
-
-		currentHKWrapper = wrapper;
-		// currentHKWrapper.subprocessAborted.addListener(this::onHKSubprocessAborted);
-		// currentHKWrapper.subprocessFinished.addListener(this::onHKSubprocessFinished);
-	}
-
-	public HKPlusPlusWrapper getCurrentHKWrapper() {
-		return currentHKWrapper;
-	}
-
-	public boolean isHKSubprocessActive() {
-		return currentHKWrapper != null;
 	}
 
 	/**
@@ -391,18 +367,6 @@ public class HVContext {
 		hierarchyClosed.broadcast(h);
 
 		System.gc();
-	}
-
-	private void onHKSubprocessAborted(HKPlusPlusWrapper wrapper) {
-		if (wrapper == currentHKWrapper) {
-			currentHKWrapper = null;
-		}
-	}
-
-	private void onHKSubprocessFinished(Pair<HKPlusPlusWrapper, Integer> args) {
-		if (args.getKey() == currentHKWrapper) {
-			currentHKWrapper = null;
-		}
 	}
 
 	public DimensionReductionManager getDimensionReductionMenager() {
