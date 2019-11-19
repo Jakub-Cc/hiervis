@@ -13,7 +13,7 @@ import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
-import pl.pwr.hiervis.util.HierarchyUtils;
+import pl.pwr.hiervis.util.LoadedHierarchyUtils;
 
 public class HKPlusPlusScheaduler {
 
@@ -95,7 +95,7 @@ public class HKPlusPlusScheaduler {
 				LoadedHierarchy outputHierarchy = wrapper.getOutputHierarchy(cfg.isHkWithTrueClass(),
 						cfg.isHkWithInstanceNames(), false);
 
-				LoadedHierarchy finalHierarchy = HierarchyUtils.merge(outputHierarchy, pPPar.hierarchy,
+				LoadedHierarchy finalHierarchy = LoadedHierarchyUtils.merge(outputHierarchy, pPPar.hierarchy,
 						pPPar.node.getId());
 				HVContext.getContext().loadHierarchy(getParameterString(pPPar), finalHierarchy);
 			} catch (Throwable ex) {

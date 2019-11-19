@@ -30,6 +30,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVConstants;
@@ -47,7 +48,7 @@ import pl.pwr.hiervis.prefuse.control.PanControl;
 import pl.pwr.hiervis.prefuse.control.SubtreeDragControl;
 import pl.pwr.hiervis.prefuse.control.ZoomScrollControl;
 import pl.pwr.hiervis.util.Event;
-import pl.pwr.hiervis.util.HierarchyUtils;
+import pl.pwr.hiervis.util.LoadedHierarchyUtils;
 import pl.pwr.hiervis.util.SwingUIUtils;
 import pl.pwr.hiervis.util.Utils;
 import pl.pwr.hiervis.util.ui.CloseableTabComponent;
@@ -230,7 +231,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 				StringBuilder buf = new StringBuilder();
 
 				String nodeId = item.getString(HVConstants.PREFUSE_NODE_ID_COLUMN_NAME);
-				Node n = HierarchyUtils.findGroup(context.getHierarchy(), nodeId);
+				Node n = LoadedHierarchyUtils.findGroup(context.getHierarchy(), nodeId);
 				buf.append("<html>");
 				buf.append("<b>").append(nodeId).append("</b><br/>").append("Instances in this node: ")
 						.append(n.getNodeInstances().size()).append("<br/>");
@@ -257,7 +258,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 
 		mouseControl.addAction(new MouseAction(TriggerAreaTypes.VISUAL_ITEM, MouseEvent.BUTTON1, 2, (item, e) -> {
 			if (item instanceof NodeItem) {
-				Node n = HierarchyUtils.findGroup(context.getHierarchy(), item.getRow());
+				Node n = LoadedHierarchyUtils.findGroup(context.getHierarchy(), item.getRow());
 
 				HKOptionsJDialog hkFrame = new HKOptionsJDialog(context, this, n, subtitle);
 
@@ -322,7 +323,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 		mntmFlatten.setMnemonic('F');
 		mntmFlatten.addActionListener(e -> {
 			String tabTitle = "[F] " + tabPane.getTitleAt(tabPane.getSelectedIndex());
-			context.loadHierarchy(tabTitle, HierarchyUtils.flattenHierarchy(context.getHierarchy()));
+			context.loadHierarchy(tabTitle, LoadedHierarchyUtils.flattenHierarchy(context.getHierarchy()));
 		});
 		mntmFlatten.setEnabled(false);
 		mnEdit.add(mntmFlatten);

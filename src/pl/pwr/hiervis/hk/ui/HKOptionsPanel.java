@@ -15,13 +15,13 @@ import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.Logger;
 
+import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.HierarchyVisualizer;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.hk.HKPlusPlusScheaduler;
-import pl.pwr.hiervis.util.HierarchyUtils;
 import pl.pwr.hiervis.util.ui.GridBagConstraintsBuilder;
 
 @SuppressWarnings("serial")

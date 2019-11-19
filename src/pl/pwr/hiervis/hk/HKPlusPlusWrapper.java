@@ -10,13 +10,13 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Triple;
 
 import basic_hierarchy.common.Constants;
+import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.interfaces.Node;
 import basic_hierarchy.reader.GeneratedCSVReader;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.Event;
-import pl.pwr.hiervis.util.HierarchyUtils;
 import pl.pwr.hiervis.util.InputStreamObserverThread;
 import pl.pwr.hiervis.util.ui.OperationProgressFrame;
 
@@ -97,7 +97,6 @@ public class HKPlusPlusWrapper {
 		if (maxNodeCount < 0) {
 			maxNodeCount = Integer.MAX_VALUE;
 		}
-
 		// Clear the output dir so's not to litter
 		Arrays.stream(hkOutDir.listFiles()).forEach(file -> file.delete());
 
