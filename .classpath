@@ -2,8 +2,9 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="submodules/hierarchy_measures/src"/>
-	<classpathentry kind="src" path="submodules/hierarchy_measures/submodules/basic_hierarchy/src"/>
+	<classpathentry kind="src" path="submodules/hkplusplus/src"/>
+	<classpathentry kind="src" path="submodules/hkplusplus/submodules/hierarchy_measures/submodules/basic_hierarchy/src"/>
+	<classpathentry kind="src" path="submodules/hkplusplus/submodules/hierarchy_measures/src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
@@ -19,11 +20,6 @@
 	<classpathentry kind="lib" path="lib/prefuse-beta-20071021.jar"/>
 	<classpathentry kind="lib" path="lib/weka.jar"/>
 	<classpathentry kind="lib" path="skel/hk/hk.jar"/>
-	<classpathentry kind="lib" path="submodules/hierarchy_measures/libs/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="submodules/hierarchy_measures/libs/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="submodules/hierarchy_measures/submodules/basic_hierarchy/libs/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="submodules/hierarchy_measures/submodules/basic_hierarchy/libs/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="submodules/hierarchy_measures/submodules/basic_hierarchy/libs/weka.jar"/>
 	<classpathentry kind="lib" path="lib/flexdock-1.2.4.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/mdsj.jar"/>
