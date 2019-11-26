@@ -178,7 +178,7 @@ public class HKPlusPlusWrapper {
 	 */
 	public LoadedHierarchy getOutputHierarchy(boolean withTrueClass, boolean withInstanceNames, boolean useSubtree)
 			throws IOException {
-		LoadedHierarchy.Options options = new LoadedHierarchy.Options(withInstanceNames, withTrueClass, false, false,
+		LoadedHierarchy.Options options = new LoadedHierarchy.Options(withInstanceNames, withTrueClass, true, false,
 				useSubtree);
 
 		Hierarchy output = new GeneratedCSVReader().load(hkOutputFile.getAbsolutePath(),
