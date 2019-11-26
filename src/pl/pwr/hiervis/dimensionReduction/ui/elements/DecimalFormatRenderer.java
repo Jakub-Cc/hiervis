@@ -28,26 +28,52 @@ public class DecimalFormatRenderer extends DefaultTableCellRenderer {
 		DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
 		symbols.setGroupingSeparator(' ');
 
-		int maxNumber = -1;
-		for (FeatureSelectionResult res : selectionResult) {
-			int decimalPlaces = getDefaultDecimalLength(res.getScore());
-			if (maxDecimal < decimalPlaces) {
-				maxDecimal = decimalPlaces;
-			}
-			int numberPlaces = getDefaultValueLength(res.getScore());
-			if (maxNumber < numberPlaces) {
-				maxNumber = numberPlaces;
-			}
-		}
-		log.debug(maxDecimal);
-		log.debug(maxNumber);
-		String numberFormat = StringUtils.repeat("#", maxNumber % 3);
-		numberFormat += StringUtils.repeat(",###", maxNumber / 3);
-		if (maxNumber > 2)
-			maxDecimal = 2;
-		String decimalFormat = StringUtils.repeat('0', maxDecimal);
+		/*
+		 * int maxNumber = -1; for (FeatureSelectionResult res : selectionResult) { int
+		 * decimalPlaces = getDefaultDecimalLength(res.getScore()); if (maxDecimal <
+		 * decimalPlaces) { maxDecimal = decimalPlaces; } int numberPlaces =
+		 * getDefaultValueLength(res.getScore()); if (maxNumber < numberPlaces) {
+		 * maxNumber = numberPlaces; } } log.debug(maxDecimal); log.debug(maxNumber);
+		 * String numberFormat = StringUtils.repeat("#", maxNumber % 3); numberFormat +=
+		 * StringUtils.repeat(",###", maxNumber / 3); if (maxNumber > 2) maxDecimal = 2;
+		 * String decimalFormat = StringUtils.repeat('0', maxDecimal);
+		 * 
+		 * formatter = new DecimalFormat(numberFormat + "0." + decimalFormat);
+		 */
+		int minDecimal = getMinToDistinguish(selectionResult);
+		String decimalFormat = "";
+		if (minDecimal > 0) {
+			System.out.println("cos");
+			decimalFormat = "###,###,###,###,###,###,###,###,###,###,##0." + StringUtils.repeat('0', minDecimal);
 
-		formatter = new DecimalFormat(numberFormat + "0." + decimalFormat);
+		} else {
+			decimalFormat = "###,###,###,###,###,###,###,###,###,###,###";
+		}
+		formatter = new DecimalFormat(decimalFormat);
+	}
+
+	private int getMinToDistinguish(List<FeatureSelectionResult> selectionResult) {
+		int min = 0;
+		for (int i = 0; i < selectionResult.size() - 1; i++) {
+			int curent = getMinToDistinguish(selectionResult.get(i).getScore(), selectionResult.get(i + 1).getScore());
+			if (curent > min)
+				min = curent;
+		}
+		return min;
+	}
+
+	private int getMinToDistinguish(double a, double b) {
+		int max = Math.max(getDefaultDecimalLength(a), getDefaultDecimalLength(b));
+		long multi = 1;
+		for (int i = 0; i < max; i++) {
+			long c = (long) Math.floor(a * multi);
+			long d = (long) Math.floor(b * multi);
+			if (c != d) {
+				return i;
+			}
+			multi *= 10;
+		}
+		return max;
 	}
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
