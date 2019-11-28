@@ -5,20 +5,33 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.common.Constants;
 import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
+import basic_hierarchy.interfaces.Instance;
 import basic_hierarchy.interfaces.Node;
 import basic_hierarchy.reader.GeneratedCSVReader;
+import data.Data;
+import data.DataPoint;
+import data.DataReader;
+import data.DataStatistics;
+import data.Parameters;
+import dendrogram.Dendrogram;
 import pl.pwr.hiervis.core.HVConfig;
+import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.Event;
 import pl.pwr.hiervis.util.InputStreamObserverThread;
+import pl.pwr.hiervis.util.LoadedHierarchyUtils;
 import pl.pwr.hiervis.util.ui.OperationProgressFrame;
+import utils.CmdLineParser;
 
 public class HKPlusPlusWrapper {
 	private static final File hkBaseDir = new File("./hk");
@@ -27,6 +40,7 @@ public class HKPlusPlusWrapper {
 	private static final File hkInputFile = new File(hkBaseDir, "in.csv");
 	private static final File hkOutputFile = new File(hkOutDir, "finalHierarchyOfGroups.csv");
 
+	private Logger log = LogManager.getLogger(HKPlusPlusWrapper.class);
 	/**
 	 * Sent when the subprocess terminates by itself.
 	 * 
@@ -145,6 +159,90 @@ public class HKPlusPlusWrapper {
 		waitFrame.setVisible(true);
 	}
 
+	public void startDirect(HKPlusPlusParameter pPPar) {
+		plusParameter = pPPar;
+		startDirect(pPPar.hierarchy, pPPar.node, pPPar.owner, pPPar.trueClassAttribute, pPPar.instanceNames,
+				pPPar.diagonalMatrix, pPPar.disableStaticCenter, pPPar.generateImages, pPPar.epsilon, pPPar.littleValue,
+				pPPar.clusters, pPPar.iterations, pPPar.repeats, pPPar.dendrogramSize, pPPar.maxNodeCount,
+				pPPar.verbose);
+	}
+
+	public void startDirect(LoadedHierarchy loadedH, Node selectedNode, Window owner, boolean trueClassAttribute,
+			boolean instanceNames, boolean diagonalMatrix, boolean disableStaticCenter, boolean generateImages,
+			int epsilon, int littleValue, int clusters, int iterations, int repeats, int dendrogramSize,
+			int maxNodeCount, boolean verbose) {
+		log.debug("1");
+
+		if (maxNodeCount < 0) {
+			maxNodeCount = Integer.MAX_VALUE;
+		}
+
+		Hierarchy subHierarchy = HierarchyUtils.subHierarchy(loadedH.getMainHierarchy(), selectedNode.getId(),
+				Constants.ROOT_ID);
+		List<String> args = buildArgsList(trueClassAttribute, instanceNames, diagonalMatrix, disableStaticCenter,
+				generateImages, epsilon, littleValue, clusters, iterations, repeats, dendrogramSize, maxNodeCount,
+				verbose);
+		log.debug("2");
+		CmdLineParser parser = new CmdLineParser();
+		parser.parse(args.toArray(new String[] {}));
+
+		log.debug("3");
+		Data inputData = getDataFromHierarchy(subHierarchy);
+		Dendrogram dendrogram = new Dendrogram(inputData, Parameters.getMethod(), Parameters.getK(),
+				Parameters.getDendrogramMaxHeight(), Parameters.getOutputFolder());
+		log.debug("4");
+		Hierarchy output = dendrogram.calculateHierachy();
+
+		LoadedHierarchy.Options options = new LoadedHierarchy.Options(instanceNames, trueClassAttribute, true, false,
+				false);
+		LoadedHierarchy outputHierarchy = new LoadedHierarchy(output, options);
+
+		LoadedHierarchy finalHierarchy = LoadedHierarchyUtils.merge(outputHierarchy, loadedH, selectedNode.getId());
+		String hierarchyName = getParameterString(selectedNode, diagonalMatrix, epsilon, littleValue, clusters,
+				iterations, dendrogramSize, maxNodeCount);
+		HVContext.getContext().loadHierarchy(hierarchyName, finalHierarchy);
+
+	}
+
+	public String getParameterString(Node selectedNode, boolean diagonalMatrix, int epsilon, int littleValue,
+			int clusters, int iterations, int dendrogramSize, int maxNodeCount) {
+		int maxNodes = maxNodeCount;
+		String maxNodesStr = maxNodes < 0 ? "MAX_INT" : ("" + maxNodes);
+
+		return String.format("%s / -k %s / -n %s / -r %s / -s %s / -e %s / -l %s / -w %s%s", selectedNode.getId(),
+				clusters, iterations, iterations, dendrogramSize, epsilon, littleValue, maxNodesStr,
+				diagonalMatrix ? " / DM" : "");
+	}
+
+	private Data getDataFromHierarchy(Hierarchy h) {
+		int numbrOfPoints = h.getOverallNumberOfInstances();
+		DataPoint[] points = new DataPoint[numbrOfPoints];
+
+		int index = 0;
+		for (Node n : HierarchyUtils.getAllNodes(h)) {
+			for (Instance i : n.getNodeInstances()) {
+				points[index] = new DataPoint(i.getData(), i.getData(), i.getInstanceName(), i.getTrueClass());
+				index++;
+			}
+		}
+		int numberOfDimensions = HierarchyUtils.getFirstInstance(h).getData().length;
+		HashMap<Integer, String> dimensionNumberAndItsName = createDimensionNumberAndItsName(h);
+		HashMap<String, Integer> classNameAndItsId = DataReader.getClassNameAndItsId(points);
+		DataStatistics dataStats = DataReader.calculateDataStatistics(points, numberOfDimensions, classNameAndItsId);
+		Data data = new Data(points, numbrOfPoints, numberOfDimensions, dataStats, dimensionNumberAndItsName);
+		return data;
+	}
+
+	private HashMap<Integer, String> createDimensionNumberAndItsName(Hierarchy h) {
+		HashMap<Integer, String> dimensionNumberAndItsName = new HashMap<Integer, String>();
+		if (h.getDataNames() != null)
+			for (int i = 0; i < h.getDataNames().length; i++) {
+				dimensionNumberAndItsName.put(i, h.getDataNames()[i]);
+			}
+
+		return dimensionNumberAndItsName;
+	}
+
 	/**
 	 * Prepares the input file that the HK subprocess will load by serializing the
 	 * specified hierarchy and saving it in the file that HK is configured to load.
@@ -260,11 +358,11 @@ public class HKPlusPlusWrapper {
 			int iterations, int repeats, int dendrogramSize, int maxNodeCount, boolean verbose) {
 		List<String> args = new ArrayList<>();
 
-		args.add("java");
+		// args.add("java");
 		// Set encoding to UTF-8 so that files are loaded correctly
-		args.add("-Dfile.encoding=utf8");
-		args.add("-jar");
-		args.add(hkJarFile.getAbsolutePath());
+		// args.add("-Dfile.encoding=utf8");
+		// args.add("-jar");
+		// args.add(hkJarFile.getAbsolutePath());
 
 		// Hardcode several parameters.
 		args.add("-lgmm");

@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jfree.util.Log;
 
 import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.core.HVConfig;
@@ -58,16 +59,20 @@ public class HKPlusPlusScheaduler {
 		try {
 			HVConfig cfg = HVContext.getContext().getConfig();
 			HKPlusPlusWrapper wrapper = new HKPlusPlusWrapper(cfg);
-			wrapper.subprocessFinished.addListener(this::onSubprocessFinished);
-			wrapper.subprocessAborted.addListener(this::onSubprocessAborted);
-
-			logger.trace("Preparing input file...");
+			wrapper.startDirect(pPPar);
+			Log.debug("jshj");
+			/*
+			 * wrapper.subprocessFinished.addListener(this::onSubprocessFinished);
+			 * wrapper.subprocessAborted.addListener(this::onSubprocessAborted);
+			 * 
+			 * logger.trace("Preparing input file...");
+			 */
 			wrapper.prepareInputFile(pPPar.hierarchy.getMainHierarchy(), pPPar.node, pPPar.trueClassAttribute,
 					pPPar.instanceNames);
+			/*
+			 * logger.trace("Starting..."); wrapper.start(pPPar); curentWraper = wrapper;
+			 */
 
-			logger.trace("Starting...");
-			wrapper.start(pPPar);
-			curentWraper = wrapper;
 		} catch (IOException ex) {
 			logger.error(ex);
 		}
