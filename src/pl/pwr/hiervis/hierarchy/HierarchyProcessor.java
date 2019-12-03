@@ -18,7 +18,6 @@ import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.interfaces.Instance;
 import basic_hierarchy.interfaces.Node;
-import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVConstants;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.prefuse.TableEx;
@@ -54,6 +53,15 @@ import prefuse.visual.VisualItem;
 import prefuse.visual.VisualTable;
 
 public class HierarchyProcessor {
+
+	private static final String LAYOUT2 = "layout";
+	private static final String DESIGN = "design";
+	private static final String NODES = ".nodes";
+
+	private HierarchyProcessor() {
+		throw new AssertionError("Static class");
+	}
+
 	/**
 	 * Processes the currently loaded {@link Hierarchy} and creates a {@link Tree}
 	 * structure used to visualize {@link Node}s in that hierarchy.
@@ -121,8 +129,7 @@ public class HierarchyProcessor {
 		// Tree is complete, now find the max tree width
 		maxTreeWidth = Collections.max(treeLevelToWidth.values());
 
-		TreeLayoutData layoutData = new TreeLayoutData(tree, maxTreeDepth, maxTreeWidth, availableWidth,
-				availableHeight);
+		TreeLayoutData layoutData = new TreeLayoutData(maxTreeDepth, maxTreeWidth, availableWidth, availableHeight);
 
 		return Pair.of(tree, layoutData);
 	}
@@ -266,13 +273,13 @@ public class HierarchyProcessor {
 			ColorAction edgesColor = new ColorAction(HVConstants.HIERARCHY_DATA_NAME + ".edges", VisualItem.STROKECOLOR,
 					ColorLib.color(Color.lightGray));
 
-			ColorAction nodeBorderColor = new ColorAction(HVConstants.HIERARCHY_DATA_NAME + ".nodes",
+			ColorAction nodeBorderColor = new ColorAction(HVConstants.HIERARCHY_DATA_NAME + NODES,
 					VisualItem.STROKECOLOR, ColorLib.color(Color.lightGray));
 
-			ColorAction nodeFillColor = new NodeColorAction(context, HVConstants.HIERARCHY_DATA_NAME + ".nodes",
+			ColorAction nodeFillColor = new NodeColorAction(context, HVConstants.HIERARCHY_DATA_NAME + NODES,
 					VisualItem.FILLCOLOR);
 
-			StrokeAction nodeBorderStroke = new StrokeAction(HVConstants.HIERARCHY_DATA_NAME + ".nodes",
+			StrokeAction nodeBorderStroke = new StrokeAction(HVConstants.HIERARCHY_DATA_NAME + NODES,
 					StrokeLib.getStroke(strokeWidth));
 
 			ActionList designList = new ActionList();
@@ -285,8 +292,8 @@ public class HierarchyProcessor {
 			layout.add(treeLayout);
 			layout.add(new RepaintAction());
 
-			vis.putAction("design", designList);
-			vis.putAction("layout", layout);
+			vis.putAction(DESIGN, designList);
+			vis.putAction(LAYOUT2, layout);
 			vis.putAction("nodeColor", nodeFillColor);
 			// TODO we can here implement a heuristic that will check if after enlarging
 			// the border lines (rows and columns) of pixels do not contain other values
@@ -305,17 +312,17 @@ public class HierarchyProcessor {
 	public static void layoutVisualization(Visualization vis) {
 		Utils.waitUntilActivitiesAreFinished();
 
-		vis.run("design");
-		vis.run("layout");
+		vis.run(DESIGN);
+		vis.run(LAYOUT2);
 
 		Utils.waitUntilActivitiesAreFinished();
 	}
 
-	public static TableEx createInstanceTable(HVConfig config, LoadedHierarchy hierarchy, Tree hierarchyTree) {
+	public static TableEx createInstanceTable(LoadedHierarchy hierarchy, Tree hierarchyTree) {
 		String[] dataNames = getFeatureNames(hierarchy);
 
 		TableEx table = createEmptyInstanceTable(hierarchy.options, dataNames);
-		processInstanceData(config, hierarchy, hierarchyTree, table);
+		processInstanceData(hierarchy, hierarchyTree, table);
 
 		return table;
 	}
@@ -379,14 +386,11 @@ public class HierarchyProcessor {
 
 	/**
 	 * Processes raw hierarchy data and saves it in the specified table.
-	 * 
-	 * @param config        the application config
 	 * @param hierarchy     the hierarchy to process
 	 * @param hierarchyTree the processed hierarchy tree
 	 * @param table         the table the processed data will be saved in.
 	 */
-	private static void processInstanceData(HVConfig config, LoadedHierarchy hierarchy, Tree hierarchyTree,
-			Table table) {
+	private static void processInstanceData(LoadedHierarchy hierarchy, Tree hierarchyTree, Table table) {
 		// TODO: Implement some sort of culling so that we remove overlapping instances?
 		// Could use k-d trees maybe?
 
@@ -502,14 +506,14 @@ public class HierarchyProcessor {
 		return vis;
 	}
 
-	private static ColorAction createInstanceVisualizationColorAction(HVConfig config) {
+	private static ColorAction createInstanceVisualizationColorAction() {
 		ColorAction colorize = new ColorAction(HVConstants.INSTANCE_DATA_NAME, VisualItem.FILLCOLOR);
 		colorize.setDefaultColor(Utils.rgba(Color.MAGENTA));
 		return colorize;
 	}
 
-	public static void updateInstanceVisualizationColors(HVConfig config, Visualization vis) {
-		ColorAction colorize = createInstanceVisualizationColorAction(config);
+	public static void updateInstanceVisualizationColors(Visualization vis) {
+		ColorAction colorize = createInstanceVisualizationColorAction();
 		ActionList draw = (ActionList) vis.removeAction("draw");
 		draw.remove(1).cancel();
 		draw.add(1, colorize);
@@ -566,8 +570,8 @@ public class HierarchyProcessor {
 	 * @param vis hierarchy visualization to dispose
 	 */
 	public static void disposeHierarchyVis(Visualization vis) {
-		disposeAction(vis.removeAction("design"));
-		disposeAction(vis.removeAction("layout"));
+		disposeAction(vis.removeAction(DESIGN));
+		disposeAction(vis.removeAction(LAYOUT2));
 		disposeAction(vis.removeAction("nodeColor"));
 		vis.reset();
 	}

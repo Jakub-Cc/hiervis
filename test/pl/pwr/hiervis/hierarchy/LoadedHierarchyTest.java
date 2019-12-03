@@ -10,7 +10,6 @@ import basic_hierarchy.implementation.BasicNode;
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.interfaces.Node;
 import basic_hierarchy.test.TestCommon;
-import pl.pwr.hiervis.core.HVConfig;
 
 public class LoadedHierarchyTest {
 
@@ -27,7 +26,7 @@ public class LoadedHierarchyTest {
 	@Test
 	public void testIsProcessed() {
 		assertEquals(false, loadedHierarchy.isProcessed());
-		loadedHierarchy.processHierarchy(new HVConfig());
+		loadedHierarchy.processHierarchy();
 		assertEquals(true, loadedHierarchy.isProcessed());
 	}
 
@@ -72,21 +71,21 @@ public class LoadedHierarchyTest {
 	@Test
 	public void testGetTree() {
 		assertEquals(null, loadedHierarchy.getTree());
-		loadedHierarchy.processHierarchy(new HVConfig());
+		loadedHierarchy.processHierarchy();
 		assertNotEquals(null, loadedHierarchy.getTree());
 	}
 
 	@Test
 	public void testGetTreeLayoutData() {
 		assertEquals(null, loadedHierarchy.getTreeLayoutData());
-		loadedHierarchy.processHierarchy(new HVConfig());
+		loadedHierarchy.processHierarchy();
 		assertNotEquals(null, loadedHierarchy.getTreeLayoutData());
 	}
 
 	@Test
 	public void testGetInstanceTable() {
 		assertEquals(null, loadedHierarchy.getInstanceTable());
-		loadedHierarchy.processHierarchy(new HVConfig());
+		loadedHierarchy.processHierarchy();
 		assertNotEquals(null, loadedHierarchy.getInstanceTable());
 	}
 
@@ -104,7 +103,7 @@ public class LoadedHierarchyTest {
 
 	@Test
 	public void testDispose() {
-		loadedHierarchy.processHierarchy(new HVConfig());
+		loadedHierarchy.processHierarchy();
 		assertNotEquals(null, loadedHierarchy.getInstanceTable());
 		assertNotEquals(null, loadedHierarchy.getTree());
 		assertNotEquals(null, loadedHierarchy.getTreeLayoutData());

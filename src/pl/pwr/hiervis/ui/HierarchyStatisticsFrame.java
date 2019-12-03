@@ -64,7 +64,6 @@ import pl.pwr.hiervis.util.LoadedHierarchyUtils;
 import pl.pwr.hiervis.util.SwingUIUtils;
 
 /*
- * TODO:
  * This class uses a somewhat hacky solution to make the frame always-on-top ONLY
  * within the application. Normally we could use a JDialog for this, however we
  * also want the user to be able to disable this functionality at will.
@@ -72,27 +71,29 @@ import pl.pwr.hiervis.util.SwingUIUtils;
  * Another possible solution to this problem would be having shared GUI-creation code,
  * and then calling it inside of a JFrame or a JDialog, depending on the user-selected setting.
  * Changing the setting while the frame was open would close the old frame and create the new one.
+ * 
+ * not applicable any more as this frame is wrapped in a dockerUI.
  */
 
 @SuppressWarnings("serial")
 public class HierarchyStatisticsFrame extends JFrame {
 	private static final Logger log = LogManager.getLogger(HierarchyStatisticsFrame.class);
 
-	private HVContext context;
+	private transient HVContext context;
 	private Window owner;
 
 	private JTabbedPane tabPane;
 	private JMenuItem mntmDump;
 	private JCheckBox cboxSubtree;
 
-	private WindowListener ownerListener;
+	private transient WindowListener ownerListener;
 	private int verticalScrollValue = 0;
 
 	private DecimalFormat format;
 
-	public HierarchyStatisticsFrame(HVContext context, Window frame, String subtitle) {
+	public HierarchyStatisticsFrame(Window frame, String subtitle) {
 		super("Statistics Frame" + (subtitle == null ? "" : (" [ " + subtitle + " ]")));
-		this.context = context;
+		this.context = HVContext.getContext();
 		this.owner = frame;
 
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -174,9 +175,8 @@ public class HierarchyStatisticsFrame extends JFrame {
 		context.configChanged.addListener(this::onConfigChanged);
 
 		if (context.isHierarchyDataLoaded()) {
-			context.getHierarchy().measureHolder.forComputedMeasures(set -> {
-				set.stream().forEach(this::updateMeasurePanel);
-			});
+			context.getHierarchy().measureHolder
+					.forComputedMeasures(set -> set.stream().forEach(this::updateMeasurePanel));
 		}
 	}
 
@@ -203,7 +203,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 		mntmDump.setEnabled(context.isHierarchyDataLoaded());
 		mnOptions.add(mntmDump);
 
-		mntmDump.addActionListener((e) -> {
+		mntmDump.addActionListener(e -> {
 			JFileChooser fileDialog = new JFileChooser();
 			fileDialog.setCurrentDirectory(new File("."));
 			fileDialog.setDialogTitle("Choose a file");
@@ -221,9 +221,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 		JCheckBoxMenuItem mntmAlwaysOnTop = new JCheckBoxMenuItem("Always On Top");
 		mnOptions.add(mntmAlwaysOnTop);
 
-		mntmAlwaysOnTop.addActionListener((e) -> {
-			setKeepOnTop(mntmAlwaysOnTop.isSelected());
-		});
+		mntmAlwaysOnTop.addActionListener(e -> setKeepOnTop(mntmAlwaysOnTop.isSelected()));
 	}
 
 	private void createGUI() {
@@ -296,7 +294,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 					.filter(task -> task.applicabilityFunction.apply(h)).collect(Collectors.toList());
 
 			if (!measureTasks.isEmpty()) {
-				String friendlyGroupName = groupPath.contains("/") ? groupPath.substring(groupPath.lastIndexOf("/") + 1)
+				String friendlyGroupName = groupPath.contains("/") ? groupPath.substring(groupPath.lastIndexOf('/') + 1)
 						: groupPath;
 
 				if (friendlyGroupName.isEmpty()) {
@@ -415,7 +413,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 
 	private JButton createTaskButton(String title, Hierarchy h, Collection<MeasureTask> tasks) {
 		JButton button = new JButton();
-		button.addActionListener((e) -> {
+		button.addActionListener(e -> {
 			button.setEnabled(false);
 
 			MeasureManager measureManager = context.getMeasureManager();
@@ -428,8 +426,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 		});
 
 		LoadedHierarchy lh = context.getHierarchy();
-		boolean allComplete = !tasks.stream().filter(task -> !lh.measureHolder.isMeasureComputed(h, task)).findAny()
-				.isPresent();
+		boolean allComplete = tasks.stream().allMatch(task -> lh.measureHolder.isMeasureComputed(h, task));
 
 		button.setEnabled(context.isHierarchyDataLoaded() && !allComplete);
 		button.setText(title);
@@ -439,7 +436,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 
 	private JButton createTaskButton(Pair<Hierarchy, MeasureTask> task) {
 		JButton button = new JButton();
-		button.addActionListener((e) -> {
+		button.addActionListener(e -> {
 			MeasureManager measureManager = context.getMeasureManager();
 
 			boolean pending = measureManager.isMeasurePending(task.getLeft(), task.getRight());
@@ -638,11 +635,13 @@ public class HierarchyStatisticsFrame extends JFrame {
 
 	private void recreateMeasurePanel(Pair<Hierarchy, MeasureTask> task) {
 		JPanel panel = findMeasurePanel(task.getLeft(), task.getRight().identifier);
-		panel.removeAll();
+		if (panel != null) {
+			panel.removeAll();
 
-		panel.add(createTaskButton(task), BorderLayout.NORTH);
-		panel.revalidate();
-		panel.repaint();
+			panel.add(createTaskButton(task), BorderLayout.NORTH);
+			panel.revalidate();
+			panel.repaint();
+		}
 	}
 
 	private static String toCamelCase(String input, String delimiter) {
@@ -707,7 +706,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 		format.setMaximumFractionDigits(cfg.getDoubleFormatPrecision());
 	}
 
-	private void onHierarchyChanging(LoadedHierarchy oldHierarchy) {
+	private void onHierarchyChanging(@SuppressWarnings("unused") LoadedHierarchy oldHierarchy) {
 		// Store the current scroll before the hierarchy is changed, so that we can
 		// restore it when the new hierarchy is loaded.
 		JScrollPane scrollPane = (JScrollPane) tabPane.getComponentAt(tabPane.getSelectedIndex());
@@ -723,23 +722,23 @@ public class HierarchyStatisticsFrame extends JFrame {
 	}
 
 	private void onHierarchyChanged(LoadedHierarchy newHierarchy) {
-		mntmDump.setEnabled(newHierarchy != null);
-
-		createMeasurePanels(newHierarchy.getMainHierarchy());
-		initializeNodePanel();
-
 		if (newHierarchy != null) {
+			mntmDump.setEnabled(true);
+			createMeasurePanels(newHierarchy.getMainHierarchy());
+			initializeNodePanel();
 			SwingUtilities.invokeLater(() -> {
 				JScrollPane scrollPane = (JScrollPane) tabPane.getComponentAt(tabPane.getSelectedIndex());
 				scrollPane.getVerticalScrollBar().setValue(verticalScrollValue);
 			});
+		} else {
+			mntmDump.setEnabled(false);
 		}
 
 		tabPane.revalidate();
 		tabPane.repaint();
 	}
 
-	private void nodeSelectionChanging(int selectedRow) {
+	private void nodeSelectionChanging(@SuppressWarnings("unused") int selectedRow) {
 		// Store the current scroll before the hierarchy is changed, so that we can
 		// restore it when the new hierarchy is loaded.
 		JScrollPane scrollPane = (JScrollPane) tabPane.getComponentAt(tabPane.getSelectedIndex());
@@ -752,7 +751,7 @@ public class HierarchyStatisticsFrame extends JFrame {
 		tabPane.repaint();
 	}
 
-	private void nodeSelectionChanged(int selectedRow) {
+	private void nodeSelectionChanged(@SuppressWarnings("unused") int selectedRow) {
 		if (tabPane.getSelectedIndex() == 0) {
 			// Only proceed if the node stats tab is active, to prevent creating
 			// components & wrapper hierarchies every time the user changes selection

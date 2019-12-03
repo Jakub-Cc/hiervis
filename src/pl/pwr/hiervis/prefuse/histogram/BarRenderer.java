@@ -16,7 +16,6 @@ import prefuse.Constants;
 import prefuse.render.AbstractShapeRenderer;
 import prefuse.visual.VisualItem;
 
-
 /*
  * This class renders bars like those you'd use in a bar chart.
  * Some code was borrowed from StackedAreaChart; some from ShapeRenderer.
@@ -24,31 +23,25 @@ import prefuse.visual.VisualItem;
  * @author <a href="http://webfoot.com/ducky.home.html">Kaitlin Duck Sherwood</a>
  * @author <a href="http://jheer.org">jeffrey heer</a>
  */
-public class BarRenderer extends AbstractShapeRenderer
-{
-	private Rectangle2D m_bounds;
-	private boolean m_isVertical;
-	private int m_orientation = Constants.ORIENT_BOTTOM_TOP;
+public class BarRenderer extends AbstractShapeRenderer {
+	private Rectangle2D mBounds;
+	private boolean mIsVertical;
+	private int mOrientation = Constants.ORIENT_BOTTOM_TOP;
 
-	protected double m_barWidth = 10;
-	protected Rectangle2D m_rect = new Rectangle2D.Double();
+	protected double mBarWidth = 10;
+	protected Rectangle2D mRect = new Rectangle2D.Double();
 
-
-	public BarRenderer( double aWidth )
-	{
-		// super(barWidth);
-		m_barWidth = aWidth;
-		setOrientation( m_orientation );
+	public BarRenderer(double aWidth) {
+		mBarWidth = aWidth;
+		setOrientation(mOrientation);
 	}
 
-	public void setBarWidth( double newWidth )
-	{
-		m_barWidth = newWidth;
+	public void setBarWidth(double newWidth) {
+		mBarWidth = newWidth;
 	}
 
-	public void setBounds( Rectangle2D bounds )
-	{
-		m_bounds = bounds;
+	public void setBounds(Rectangle2D bounds) {
+		mBounds = bounds;
 	}
 
 	/**
@@ -58,71 +51,60 @@ public class BarRenderer extends AbstractShapeRenderer
 	 * {@link Constants#ORIENT_LEFT_RIGHT} (to grow left-right), or
 	 * {@link Constants#ORIENT_RIGHT_LEFT} (to grow right-left).
 	 * 
-	 * @param orient
-	 *            the desired orientation of this layout
-	 * @throws IllegalArgumentException
-	 *             if the orientation value
-	 *             is not a valid value
+	 * @param orient the desired orientation of this layout
+	 * @throws IllegalArgumentException if the orientation value is not a valid
+	 *                                  value
 	 */
-	public void setOrientation( int orient )
-	{
-		if ( orient != Constants.ORIENT_TOP_BOTTOM &&
-			orient != Constants.ORIENT_BOTTOM_TOP &&
-			orient != Constants.ORIENT_LEFT_RIGHT &&
-			orient != Constants.ORIENT_RIGHT_LEFT ) {
-			throw new IllegalArgumentException(
-				"Invalid orientation value: " + orient
-			);
+	public void setOrientation(int orient) {
+		if (orient != Constants.ORIENT_TOP_BOTTOM && orient != Constants.ORIENT_BOTTOM_TOP
+				&& orient != Constants.ORIENT_LEFT_RIGHT && orient != Constants.ORIENT_RIGHT_LEFT) {
+			throw new IllegalArgumentException("Invalid orientation value: " + orient);
 		}
-		m_orientation = orient;
-		m_isVertical = ( m_orientation == Constants.ORIENT_TOP_BOTTOM ||
-			m_orientation == Constants.ORIENT_BOTTOM_TOP );
+		mOrientation = orient;
+		mIsVertical = (mOrientation == Constants.ORIENT_TOP_BOTTOM || mOrientation == Constants.ORIENT_BOTTOM_TOP);
 	}
 
-	protected Shape getRawShape( VisualItem item )
-	{
-		double width, height;
+	protected Shape getRawShape(VisualItem item) {
+		double width;
+		double height;
 
 		double x = item.getX();
-		if ( Double.isNaN( x ) || Double.isInfinite( x ) )
+		if (Double.isNaN(x) || Double.isInfinite(x))
 			x = 0;
 		double y = item.getY();
-		if ( Double.isNaN( y ) || Double.isInfinite( y ) )
+		if (Double.isNaN(y) || Double.isInfinite(y))
 			y = 0;
 
-		if ( m_isVertical ) {
+		if (mIsVertical) {
 			// @@@ what is the getSize for?
-			width = m_barWidth * item.getSize();
-			if ( m_orientation == Constants.ORIENT_BOTTOM_TOP ) {
-				height = m_bounds.getMaxY() - y;
-			}
-			else {
+			width = mBarWidth * item.getSize();
+			if (mOrientation == Constants.ORIENT_BOTTOM_TOP) {
+				height = mBounds.getMaxY() - y;
+			} else {
 				height = y;
-				y = m_bounds.getMinY();
+				y = mBounds.getMinY();
 			}
 
 			// Center the bar around the x-location
-			if ( width > 1 ) {
+			if (width > 1) {
 				x = x - width / 2;
 			}
-		}
-		else {
-			height = m_barWidth * item.getSize();
-			if ( m_orientation == Constants.ORIENT_LEFT_RIGHT ) {
+		} else {
+			height = mBarWidth * item.getSize();
+			if (mOrientation == Constants.ORIENT_LEFT_RIGHT) {
 				width = x;
-				x = m_bounds.getMinX();
-			}
-			else {
-				width = m_bounds.getMaxX() - x;
+				x = mBounds.getMinX();
+			} else {
+				width = mBounds.getMaxX() - x;
 			}
 
 			// Center the bar around the y-location
-			if ( height > 1 ) {
+			if (height > 1) {
 				y = y - height / 2;
 			}
 		}
 
-		m_rect.setFrame( x, y, width, height );
-		return m_rect;
+		mRect.setFrame(x, y, width, height);
+		return mRect;
 	}
 }

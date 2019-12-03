@@ -3,6 +3,7 @@ package pl.pwr.hiervis.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -61,17 +63,19 @@ import prefuse.visual.NodeItem;
 
 @SuppressWarnings("serial")
 public class VisualizerFrame extends JFrame implements ActionListener {
+	private static final String NODE_COLOR = "nodeColor";
+
 	private static final Logger log = LogManager.getLogger(VisualizerFrame.class);
 
 	/** Sent when a hierarchy tab is closed. */
-	public final Event<Integer> hierarchyTabClosed = new Event<>();
+	public final transient Event<Integer> hierarchyTabClosed = new Event<>();
 	/** Sent when a hierarchy tab is selected. */
-	public final Event<Integer> hierarchyTabSelected = new Event<>();
+	public final transient Event<Integer> hierarchyTabSelected = new Event<>();
 
-	private static final int defaultFrameWidth = 600;
-	private static final int defaultFrameHeight = 600;
+	private static final int DEFAULT_FRAME_WIDTH = 600;
+	private static final int DEFAULT_FRAME_HEIGHT = 600;
 
-	private HVContext context;
+	private transient HVContext context;
 	private String subtitle = null;
 
 	private JTabbedPane tabPane;
@@ -79,17 +83,14 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	private JMenuItem mntmSaveFile;
 	private JMenuItem mntmFlatten;
 
-	public VisualizerFrame(HVContext context, String subtitle) {
+	public VisualizerFrame(String subtitle) {
 		super("Hierarchy Frame" + (subtitle == null ? "" : (" [ " + subtitle + " ]")));
 		this.subtitle = subtitle;
 
-		if (context == null)
-			throw new RuntimeException("Context must not be null!");
-
-		this.context = context;
+		this.context = HVContext.getContext();
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setSize(defaultFrameWidth, defaultFrameHeight);
+		setSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT);
 
 		createMenu();
 		createGUI();
@@ -125,8 +126,8 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 
 	public void showFrames() {
 		// Restore the frames if they were minimized
-		context.getStatisticsFrame().setExtendedState(JFrame.NORMAL);
-		context.getInstanceFrame().setExtendedState(JFrame.NORMAL);
+		context.getStatisticsFrame().setExtendedState(Frame.NORMAL);
+		context.getInstanceFrame().setExtendedState(Frame.NORMAL);
 
 		context.getStatisticsFrame().setVisible(true);
 		context.getInstanceFrame().setVisible(true);
@@ -160,7 +161,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 				JOptionPane.YES_NO_OPTION);
 
 		if (dialogResult == JOptionPane.YES_OPTION) {
-			log.trace("Closing tab '" + tabPane.getTitleAt(index) + "'");
+			log.trace("Closing tab '{}'", tabPane.getTitleAt(index));
 			hierarchyTabClosed.broadcast(index);
 
 			DisplayEx d = (DisplayEx) tabPane.getComponentAt(index);
@@ -184,8 +185,8 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	private void createGUI() {
 
 		tabPane = new JTabbedPane();
-		JScrollPane scrol = new JScrollPane(tabPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane scrol = new JScrollPane(tabPane, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
 		getContentPane().add(scrol, BorderLayout.CENTER);
 
@@ -235,7 +236,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 				buf.append("<html>");
 				buf.append("<b>").append(nodeId).append("</b><br/>").append("Instances in this node: ")
 						.append(n.getNodeInstances().size()).append("<br/>");
-				if (n.getChildren().size() > 0) {
+				if (!n.getChildren().isEmpty()) {
 					buf.append("Instances in subtree: ").append(n.getSubtreeInstances().size());
 				}
 				buf.append("</html>");
@@ -340,7 +341,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 
 		mntmStats.addActionListener(e -> {
 			// Restore the frame if it was minimized
-			context.getStatisticsFrame().setExtendedState(JFrame.NORMAL);
+			context.getStatisticsFrame().setExtendedState(Frame.NORMAL);
 			context.getStatisticsFrame().setVisible(true);
 		});
 
@@ -350,7 +351,7 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 
 		mntmVis.addActionListener(e -> {
 			// Restore the frame if it was minimized
-			context.getInstanceFrame().setExtendedState(JFrame.NORMAL);
+			context.getInstanceFrame().setExtendedState(Frame.NORMAL);
 			context.getInstanceFrame().setVisible(true);
 		});
 	}
@@ -457,12 +458,9 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	private boolean fileNotEmpty(File file) {
 		if (file.length() != 0) {
 			return true;
-		} else {
-			SwingUtilities.invokeLater(() -> {
-				SwingUIUtils.showInfoDialog("It is not posible to load a empty file.");
-			});
-			return false;
 		}
+		SwingUtilities.invokeLater(() -> SwingUIUtils.showInfoDialog("It is not posible to load a empty file."));
+		return false;
 	}
 
 	private void loadFile(File file) {
@@ -502,12 +500,14 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 			Display currentDisplay = getCurrentHierarchyDisplay();
 			// Only recreate the visualization if it's the first time we're visiting that
 			// tab.
-			if (currentDisplay.getVisualization() == HVConstants.EMPTY_VISUALIZATION) {
-				recreateHierarchyVisualizationAsync(currentDisplay);
-			} else {
-				currentDisplay.getVisualization().run("nodeColor");
-				currentDisplay.damageReport();
-				currentDisplay.repaint();
+			if (currentDisplay != null) {
+				if (currentDisplay.getVisualization() == HVConstants.EMPTY_VISUALIZATION) {
+					recreateHierarchyVisualizationAsync(currentDisplay);
+				} else {
+					currentDisplay.getVisualization().run(NODE_COLOR);
+					currentDisplay.damageReport();
+					currentDisplay.repaint();
+				}
 			}
 
 			mntmCloseFile.setEnabled(true);
@@ -521,16 +521,18 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 
 		// Refresh the hierarchy display so that it reflects node roles correctly
 		Display currentDisplay = getCurrentHierarchyDisplay();
-		currentDisplay.getVisualization().run("nodeColor");
-		currentDisplay.damageReport();
-		currentDisplay.repaint();
+		if (currentDisplay != null) {
+			currentDisplay.getVisualization().run(NODE_COLOR);
+			currentDisplay.damageReport();
+			currentDisplay.repaint();
+		}
 	}
 
 	private void onConfigChanged(HVConfig cfg) {
 		Display currentDisplay = getCurrentHierarchyDisplay();
 
 		if (currentDisplay != null) {
-			currentDisplay.getVisualization().run("nodeColor");
+			currentDisplay.getVisualization().run(NODE_COLOR);
 			currentDisplay.setBackground(cfg.getBackgroundColor());
 			currentDisplay.damageReport();
 			currentDisplay.repaint();
@@ -577,29 +579,34 @@ public class VisualizerFrame extends JFrame implements ActionListener {
 	public static FileDrop createFileDrop(Component c, Logger log, String fileExtension, Consumer<File> fileConsumer) {
 		String fileSuffix = "." + fileExtension.toUpperCase(Locale.ENGLISH);
 
-		return new FileDrop(c, new FileDrop.Listener() {
-			public void filesDropped(File[] files) {
-				if (files.length == 0) {
-					log.trace("Drag and drop: recevied no files.");
-				} else if (files.length == 1) {
-					File file = files[0];
-					if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
-						fileConsumer.accept(file);
-					} else {
-						log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
-					}
-				} else {
-					log.trace("Drag and drop: received multiple files, ignoring.");
-					for (File file : files) {
-						if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
-							fileConsumer.accept(file);
-						} else {
-							log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
-						}
-					}
-
-				}
+		return new FileDrop(c, files -> {
+			if (files.length == 0) {
+				log.trace("Drag and drop: recevied no files.");
+			} else if (files.length == 1) {
+				dropOneFile(log, fileConsumer, fileSuffix, files);
+			} else {
+				dropMultipleFiles(log, fileConsumer, fileSuffix, files);
 			}
 		});
+	}
+
+	private static void dropMultipleFiles(Logger log, Consumer<File> fileConsumer, String fileSuffix, File[] files) {
+		log.trace("Drag and drop: received multiple files, ignoring.");
+		for (File file : files) {
+			if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
+				fileConsumer.accept(file);
+			} else {
+				log.trace("Drag and drop: recevied file is not a {} file, ignoring.", fileSuffix);
+			}
+		}
+	}
+
+	private static void dropOneFile(Logger log, Consumer<File> fileConsumer, String fileSuffix, File[] files) {
+		File file = files[0];
+		if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
+			fileConsumer.accept(file);
+		} else {
+			log.trace("Drag and drop: recevied file is not a {} file, ignoring.", fileSuffix);
+		}
 	}
 }

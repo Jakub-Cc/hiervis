@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -17,7 +18,7 @@ import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVConstants;
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.HierarchyWraper;
+import pl.pwr.hiervis.dimension_reduction.HierarchyWraper;
 import pl.pwr.hiervis.measures.MeasureResultHolder;
 import pl.pwr.hiervis.prefuse.TableEx;
 import pl.pwr.hiervis.prefuse.visualization.TreeLayoutData;
@@ -35,7 +36,6 @@ public class LoadedHierarchy {
 	public final LoadedHierarchy.Options options;
 	public final MeasureResultHolder measureHolder;
 
-	// private final Hierarchy mainHierarchy;
 	private final Map<Pair<Node, Boolean>, Hierarchy> nodeHierarchyMap;
 	private final Map<Pair<Integer, Integer>, VisualizationState> visStateMap;
 
@@ -45,8 +45,7 @@ public class LoadedHierarchy {
 	private TreeLayoutData hierarchyTreeLayout;
 	private TableEx instanceTable;
 
-	private transient int selectedRow = 0;
-	private HVConfig config;
+	private int selectedRow = 0;
 
 	public LoadedHierarchy(Hierarchy h, LoadedHierarchy.Options o) {
 		if (h == null)
@@ -57,7 +56,6 @@ public class LoadedHierarchy {
 		this.options = o;
 		this.measureHolder = new MeasureResultHolder();
 
-		// this.mainHierarchy = h;
 		this.mainWrapedHierarchy = new HierarchyWraper(h);
 
 		this.nodeHierarchyMap = new HashMap<>();
@@ -67,21 +65,20 @@ public class LoadedHierarchy {
 	/**
 	 * Processes the specified hierarchy, building hierarchy tree and creating
 	 * instance table used in visualizations.
-	 * 
 	 * @param hierarchy the hierarchy to process
 	 */
-	public void processHierarchy(HVConfig config) {
+	public void processHierarchy() {
 		// TODO:
 		// Might want to use some kind of algorithm to figure out optimal tree layout
 		// area?
 		// 1024x1024 seems to work well enough for now.
 		Pair<Tree, TreeLayoutData> treeData = HierarchyProcessor.buildHierarchyTree(
 				// mainHierarchy.getRoot(), 2048, 2048
-				mainWrapedHierarchy.hierarchy.getRoot(), 2048, 2048);
+				mainWrapedHierarchy.getHierarchy().getRoot(), 2048, 2048);
 		hierarchyTree = treeData.getLeft();
 		hierarchyTreeLayout = treeData.getRight();
-		this.config = config;
-		instanceTable = HierarchyProcessor.createInstanceTable(this.config, this, hierarchyTree);
+
+		instanceTable = HierarchyProcessor.createInstanceTable(this, hierarchyTree);
 	}
 
 	/**
@@ -101,8 +98,7 @@ public class LoadedHierarchy {
 	}
 
 	public Hierarchy getMainHierarchy() {
-		// return mainHierarchy;
-		return mainWrapedHierarchy.hierarchy;
+		return mainWrapedHierarchy.getHierarchy();
 	}
 
 	public Hierarchy getNodeHierarchy(Node n, boolean withSubtree) {
@@ -113,30 +109,24 @@ public class LoadedHierarchy {
 		Pair<Node, Boolean> pair = Pair.of(n, withSubtree);
 
 		if (!nodeHierarchyMap.containsKey(pair)) {
-			// if ( !HierarchyUtils.contains( mainHierarchy, n ) ) {
-			if (!HierarchyUtils.contains(mainWrapedHierarchy.hierarchy, n)) {
+			if (!HierarchyUtils.contains(mainWrapedHierarchy.getHierarchy(), n)) {
 				throw new IllegalArgumentException("Node does not belong to the hierarchy!");
 			}
-			// Hierarchy h = HierarchyUtils.wrapNode( mainHierarchy, n, withSubtree );
-			Hierarchy h = HierarchyUtils.wrapNode(mainWrapedHierarchy.hierarchy, n, withSubtree);
+			Hierarchy h = HierarchyUtils.wrapNode(mainWrapedHierarchy.getHierarchy(), n, withSubtree);
 			nodeHierarchyMap.put(pair, h);
 			return h;
-		} else {
-			return nodeHierarchyMap.get(pair);
 		}
+		return nodeHierarchyMap.get(pair);
 	}
 
 	public boolean isOwnerOf(Hierarchy h) {
 		if (h == null) {
 			throw new IllegalArgumentException("Hierarchy must not be null!");
 		}
-
-		// if ( h == mainHierarchy ) {
-		if (h == mainWrapedHierarchy.hierarchy) {
+		if (h == mainWrapedHierarchy.getHierarchy()) {
 			return true;
-		} else {
-			return nodeHierarchyMap.containsValue(h);
 		}
+		return nodeHierarchyMap.containsValue(h);
 	}
 
 	public VisualizationState getVisualizationStateFor(int dimensionIndexX, int dimensionIndexY) {
@@ -152,11 +142,10 @@ public class LoadedHierarchy {
 
 		if (visStateMap.containsKey(key)) {
 			return visStateMap.get(key);
-		} else {
-			VisualizationState result = new VisualizationState();
-			visStateMap.put(key, result);
-			return result;
 		}
+		VisualizationState result = new VisualizationState();
+		visStateMap.put(key, result);
+		return result;
 	}
 
 	/**
@@ -188,7 +177,7 @@ public class LoadedHierarchy {
 			instanceTable.dispose();
 			instanceTable = null;
 		}
-		instanceTable = HierarchyProcessor.createInstanceTable(config, this, hierarchyTree);
+		instanceTable = HierarchyProcessor.createInstanceTable(this, hierarchyTree);
 	}
 
 	public void clerIns() {
@@ -253,21 +242,21 @@ public class LoadedHierarchy {
 		public final boolean isFillBreadthGaps;
 		public final boolean isUseSubtree;
 
-		public boolean useTrueClassAtribute;
-		public boolean useInstanceNameAttribute;
+		private boolean useTrueClassAtribute;
+		private boolean useInstanceNameAttribute;
 
-		public boolean useHkWithDiagonalMatrix;
-		public boolean useHkNoStaticCenter;
-		public boolean useHkGenerateImages;
-		public boolean useHkVerbose;
+		private boolean useHkWithDiagonalMatrix;
+		private boolean useHkNoStaticCenter;
+		private boolean useHkGenerateImages;
+		private boolean useHkVerbose;
 
-		public int HkClusters;
-		public int HkIterations;
-		public int HkRepetitions;
-		public int HkDendrogramHeight;
-		public int HkMaxNodes;
-		public int HkEpsilon;
-		public int HkLittleValue;
+		private int hkClusters;
+		private int hkIterations;
+		private int hkRepetitions;
+		private int hkDendrogramHeight;
+		private int hkMaxNodes;
+		private int hkEpsilon;
+		private int hkLittleValue;
 
 		/**
 		 * @param withInstanceNameAttribute if true, the reader will assume that the
@@ -292,23 +281,23 @@ public class LoadedHierarchy {
 			this.isFillBreadthGaps = fillBreadthGaps;
 			this.isUseSubtree = useSubtree;
 
-			this.useTrueClassAtribute = withTrueClassAttribute;
-			this.useInstanceNameAttribute = withInstanceNameAttribute;
+			this.setUseTrueClassAtribute(withTrueClassAttribute);
+			this.setUseInstanceNameAttribute(withInstanceNameAttribute);
 
 			HVConfig cfg = HVContext.getContext().getConfig();
 
-			this.useHkWithDiagonalMatrix = cfg.isHkWithDiagonalMatrix();
-			this.useHkNoStaticCenter = cfg.isHkNoStaticCenter();
-			this.useHkGenerateImages = cfg.isHkGenerateImages();
-			this.useHkVerbose = cfg.isHkVerbose();
+			this.setUseHkWithDiagonalMatrix(cfg.isHkWithDiagonalMatrix());
+			this.setUseHkNoStaticCenter(cfg.isHkNoStaticCenter());
+			this.setUseHkGenerateImages(cfg.isHkGenerateImages());
+			this.setUseHkVerbose(cfg.isHkVerbose());
 
-			this.HkClusters = cfg.getHkClusters();
-			this.HkIterations = cfg.getHkIterations();
-			this.HkDendrogramHeight = cfg.getHkDendrogramHeight();
-			this.HkMaxNodes = cfg.getHkMaxNodes();
-			this.HkEpsilon = cfg.getHkEpsilon();
-			this.HkLittleValue = cfg.getHkLittleValue();
-			this.HkRepetitions = cfg.getHkRepetitions();
+			this.setHkClusters(cfg.getHkClusters());
+			this.setHkIterations(cfg.getHkIterations());
+			this.setHkDendrogramHeight(cfg.getHkDendrogramHeight());
+			this.setHkMaxNodes(cfg.getHkMaxNodes());
+			this.setHkEpsilon(cfg.getHkEpsilon());
+			this.setHkLittleValue(cfg.getHkLittleValue());
+			this.setHkRepetitions(cfg.getHkRepetitions());
 		}
 
 		/**
@@ -321,34 +310,33 @@ public class LoadedHierarchy {
 		 */
 		public static Options detect(File file) throws IOException {
 			Path path = file.toPath();
-			Object[] lines = Files.lines(path, StandardCharsets.UTF_8).limit(2).toArray();
+			try (Stream<String> files = Files.lines(path, StandardCharsets.UTF_8)) {
+				Object[] lines = files.limit(2).toArray();
 
-			String firstLine = (String) lines[0];
-			String secondLine = (String) lines[1];
-			String[] columns = firstLine.split(HVConstants.CSV_FILE_SEPARATOR);
+				String firstLine = (String) lines[0];
+				String secondLine = (String) lines[1];
+				String[] columns = firstLine.split(HVConstants.CSV_FILE_SEPARATOR);
 
-			boolean withHeader = !columns[0].startsWith("gen.");
+				boolean withHeader = !columns[0].startsWith("gen.");
+				if (withHeader) {
+					columns = secondLine.split(HVConstants.CSV_FILE_SEPARATOR);
+				}
+				boolean withTrueClass = columns[1].startsWith("gen.");
+				boolean withInstanceName = false;
+				try {
+					Double.valueOf(withTrueClass ? columns[2] : columns[1]);
+					// Successfully parsed, meaning that this column contains feature value = no
+					// instance name
+					withInstanceName = false;
+				} catch (NumberFormatException e) {
+					// Failed to parse, meaning that this column contains some non-digit chars =
+					// likely instance name
+					withInstanceName = true;
+				}
 
-			if (withHeader) {
-				columns = secondLine.split(HVConstants.CSV_FILE_SEPARATOR);
+				return new Options(withInstanceName, withTrueClass, withHeader, DEFAULT.isFillBreadthGaps,
+						DEFAULT.isUseSubtree);
 			}
-
-			boolean withTrueClass = columns[1].startsWith("gen.");
-
-			boolean withInstanceName = false;
-			try {
-				Double.valueOf(withTrueClass ? columns[2] : columns[1]);
-				// Successfully parsed, meaning that this column contains feature value = no
-				// instance name
-				withInstanceName = false;
-			} catch (NumberFormatException e) {
-				// Failed to parse, meaning that this column contains some non-digit chars =
-				// likely instance name
-				withInstanceName = true;
-			}
-
-			return new Options(withInstanceName, withTrueClass, withHeader, DEFAULT.isFillBreadthGaps,
-					DEFAULT.isUseSubtree);
 		}
 
 		@Override
@@ -363,6 +351,110 @@ public class LoadedHierarchy {
 			return hasInstanceNameAttribute == o.hasInstanceNameAttribute
 					&& hasTrueClassAttribute == o.hasTrueClassAttribute && hasColumnHeader == o.hasColumnHeader
 					&& isFillBreadthGaps == o.isFillBreadthGaps && isUseSubtree == o.isUseSubtree;
+		}
+
+		public boolean isUseTrueClassAtribute() {
+			return useTrueClassAtribute;
+		}
+
+		public void setUseTrueClassAtribute(boolean useTrueClassAtribute) {
+			this.useTrueClassAtribute = useTrueClassAtribute;
+		}
+
+		public boolean isUseInstanceNameAttribute() {
+			return useInstanceNameAttribute;
+		}
+
+		public void setUseInstanceNameAttribute(boolean useInstanceNameAttribute) {
+			this.useInstanceNameAttribute = useInstanceNameAttribute;
+		}
+
+		public boolean isUseHkWithDiagonalMatrix() {
+			return useHkWithDiagonalMatrix;
+		}
+
+		public void setUseHkWithDiagonalMatrix(boolean useHkWithDiagonalMatrix) {
+			this.useHkWithDiagonalMatrix = useHkWithDiagonalMatrix;
+		}
+
+		public boolean isUseHkNoStaticCenter() {
+			return useHkNoStaticCenter;
+		}
+
+		public void setUseHkNoStaticCenter(boolean useHkNoStaticCenter) {
+			this.useHkNoStaticCenter = useHkNoStaticCenter;
+		}
+
+		public boolean isUseHkGenerateImages() {
+			return useHkGenerateImages;
+		}
+
+		public void setUseHkGenerateImages(boolean useHkGenerateImages) {
+			this.useHkGenerateImages = useHkGenerateImages;
+		}
+
+		public boolean isUseHkVerbose() {
+			return useHkVerbose;
+		}
+
+		public void setUseHkVerbose(boolean useHkVerbose) {
+			this.useHkVerbose = useHkVerbose;
+		}
+
+		public int getHkClusters() {
+			return hkClusters;
+		}
+
+		public void setHkClusters(int hkClusters) {
+			this.hkClusters = hkClusters;
+		}
+
+		public int getHkIterations() {
+			return hkIterations;
+		}
+
+		public void setHkIterations(int hkIterations) {
+			this.hkIterations = hkIterations;
+		}
+
+		public int getHkRepetitions() {
+			return hkRepetitions;
+		}
+
+		public void setHkRepetitions(int hkRepetitions) {
+			this.hkRepetitions = hkRepetitions;
+		}
+
+		public int getHkDendrogramHeight() {
+			return hkDendrogramHeight;
+		}
+
+		public void setHkDendrogramHeight(int hkDendrogramHeight) {
+			this.hkDendrogramHeight = hkDendrogramHeight;
+		}
+
+		public int getHkMaxNodes() {
+			return hkMaxNodes;
+		}
+
+		public void setHkMaxNodes(int hkMaxNodes) {
+			this.hkMaxNodes = hkMaxNodes;
+		}
+
+		public int getHkEpsilon() {
+			return hkEpsilon;
+		}
+
+		public void setHkEpsilon(int hkEpsilon) {
+			this.hkEpsilon = hkEpsilon;
+		}
+
+		public int getHkLittleValue() {
+			return hkLittleValue;
+		}
+
+		public void setHkLittleValue(int hkLittleValue) {
+			this.hkLittleValue = hkLittleValue;
 		}
 	}
 

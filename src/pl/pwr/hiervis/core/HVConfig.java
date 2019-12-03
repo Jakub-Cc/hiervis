@@ -35,7 +35,7 @@ public class HVConfig {
 	 * Default path to the config file
 	 */
 	public static final String FILE_PATH = "./config.json";
-
+	public static final String ER_CONFIG_FIELDS = "Error while processing config fields: ";
 	private static final Logger log = LogManager.getLogger(HVConfig.class);
 
 	@SerializableField
@@ -135,8 +135,7 @@ public class HVConfig {
 	/**
 	 * Create a shallow copy of the specified source config.
 	 * 
-	 * @param source
-	 *            config to copy values from
+	 * @param source config to copy values from
 	 * @return the new, copied config (shallow copy)
 	 */
 	public static HVConfig from(HVConfig source) {
@@ -154,9 +153,8 @@ public class HVConfig {
 					field.set(clone, field.get(source));
 				}
 			}
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Error while processing config fields: ", e);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error(ER_CONFIG_FIELDS, e);
 		}
 
 		return clone;
@@ -165,13 +163,12 @@ public class HVConfig {
 	/**
 	 * Create a new config from the specified file.
 	 * 
-	 * @param file
-	 *            the file containing config values. Assumed to be in *.json format.
+	 * @param file the file containing config values. Assumed to be in *.json
+	 *             format.
 	 * @return the loaded confing
-	 * @throws IOException
-	 *             if an IO error occurred
-	 * @throws JsonProcessingException
-	 *             if an error occurred while processing the json text
+	 * @throws IOException             if an IO error occurred
+	 * @throws JsonProcessingException if an error occurred while processing the
+	 *                                 json text
 	 */
 	public static HVConfig from(File file) throws IOException {
 		HVConfig config = new HVConfig();
@@ -185,13 +182,12 @@ public class HVConfig {
 		try {
 			for (Field field : HVConfig.class.getDeclaredFields()) {
 				JsonNode node = rootNode.get(field.getName());
-				if (node != null && node instanceof NullNode == false && isValidField(field)) {
+				if (node != null && !(node instanceof NullNode) && isValidField(field)) {
 					config.setField(field, node);
 				}
 			}
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Error while processing config fields: ", e);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error(ER_CONFIG_FIELDS, e);
 		}
 
 		return config;
@@ -210,8 +206,7 @@ public class HVConfig {
 	 * Serializes this config object, saving it to the specified file in JSON
 	 * format.
 	 * 
-	 * @param file
-	 *            the file to save the config to
+	 * @param file the file to save the config to
 	 */
 	public void to(File file) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -228,16 +223,14 @@ public class HVConfig {
 					root.set(field.getName(), serializeField(f, field));
 				}
 			}
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Error while processing config fields: ", e);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error(ER_CONFIG_FIELDS, e);
 		}
 
 		try {
 			ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 			writer.writeValue(file, root);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.error("Error while writing json data to file: ", e);
 		}
 	}
@@ -245,8 +238,7 @@ public class HVConfig {
 	/**
 	 * Checks whether the field is 'valid' for the purpose of config serialization.
 	 * 
-	 * @param f
-	 *            the field to check
+	 * @param f the field to check
 	 * @return true if the field is marked with the SerializableField annnotation.
 	 */
 	private static boolean isValidField(Field f) {
@@ -257,68 +249,72 @@ public class HVConfig {
 	 * Set the specified field to the value represented by the specified JSON node,
 	 * converted to appropriate type (depending on field type)
 	 * 
-	 * @param f
-	 *            the field to set
-	 * @param node
-	 *            the node containing the value for the field
-	 * @throws IllegalArgumentException
-	 *             if the value represented by the node is not the appropriate type
-	 *             for the field, or no case has been implemented to handle that
-	 *             field's type.
-	 * @throws IllegalAccessException
-	 *             if the specified field cannot be accessed
+	 * @param f    the field to set
+	 * @param node the node containing the value for the field
+	 * @throws IllegalArgumentException if the value represented by the node is not
+	 *                                  the appropriate type for the field, or no
+	 *                                  case has been implemented to handle that
+	 *                                  field's type.
+	 * @throws IllegalAccessException   if the specified field cannot be accessed
 	 */
-	private void setField(Field f, JsonNode node) throws IllegalArgumentException, IllegalAccessException {
+	private void setField(Field f, JsonNode node) throws IllegalAccessException {
 		if (f.getType().equals(boolean.class)) {
 			f.set(this, node.asBoolean());
+			return;
 		}
-		else if (f.getType().equals(int.class)) {
+		if (f.getType().equals(int.class)) {
 			f.set(this, node.asInt());
+			return;
 		}
-		else if (f.getType().equals(long.class)) {
+		if (f.getType().equals(long.class)) {
 			f.set(this, node.asLong());
+			return;
 		}
-		else if (f.getType().equals(double.class)) {
+		if (f.getType().equals(double.class)) {
 			f.set(this, node.asDouble());
+			return;
 		}
-		else if (f.getType().equals(float.class)) {
+		if (f.getType().equals(float.class)) {
 			float value = (float) node.asDouble();
 			f.set(this, value);
+			return;
 		}
-		else if (f.getType().equals(String.class)) {
+		if (f.getType().equals(String.class)) {
 			f.set(this, node.asText());
+			return;
 		}
-		else if (f.getType().equals(Path.class)) {
+		if (f.getType().equals(Path.class)) {
 			File value = new File(node.asText());
 			f.set(this, value.toPath());
+			return;
 		}
-		else if (f.getType().equals(Color.class)) {
-			String input = node.asText();
+		if (f.getType().equals(Color.class)) {
+			setFieldTypeColor(f, node);
+			return;
+		}
+		throw new IllegalArgumentException(
+				String.format("No case defined for field type %s", f.getType().getSimpleName()));
+	}
+
+	private void setFieldTypeColor(Field f, JsonNode node) throws IllegalAccessException {
+		String input = node.asText();
+		try {
+			Field cf = Color.class.getDeclaredField(input);
+			int m = cf.getModifiers();
+			// Get only publically available static fields, so that we only permit
+			// accessing color constants by name, like 'red'
+			if (Modifier.isPublic(m) && Modifier.isStatic(m)) {
+				f.set(this, cf.get(null));
+			} else {
+				throw new IllegalArgumentException(String.format("'%s' is not a valid color constant!", input));
+			}
+		} catch (Exception e) {
 			try {
-				Field cf = Color.class.getDeclaredField(input);
-				int m = cf.getModifiers();
-				// Get only publically available static fields, so that we only permit
-				// accessing color constants by name, like 'red'
-				if (Modifier.isPublic(m) && Modifier.isStatic(m)) {
-					f.set(this, cf.get(null));
-				}
-				else {
-					throw new IllegalArgumentException(String.format("'%s' is not a valid color constant!", input));
-				}
+				Color value = Color.decode(input);
+				f.set(this, value);
+			} catch (NumberFormatException ex) {
+				log.error("Error while processing value for a color field: ", e);
 			}
-			catch (Exception e) {
-				try {
-					Color value = Color.decode(input);
-					f.set(this, value);
-				}
-				catch (NumberFormatException ex) {
-					log.error("Error while processing value for a color field: ", e);
-				}
-			}
-		}
-		else {
-			throw new IllegalArgumentException(
-					String.format("No case defined for field type %s", f.getType().getSimpleName()));
 		}
 	}
 
@@ -326,48 +322,36 @@ public class HVConfig {
 	 * Serializes the specified field into a JsonNode of the appropriate type
 	 * created by the specified factory object.
 	 * 
-	 * @param factory
-	 *            the factory object which creates JSON nodes
-	 * @param f
-	 *            the field to serialize
+	 * @param factory the factory object which creates JSON nodes
+	 * @param f       the field to serialize
 	 * @return a JsonNode instance representing the specified field
-	 * @throws IllegalArgumentException
-	 *             if the value represented by the node is not the appropriate type
-	 *             for the field, or no case has been implemented to handle that
-	 *             field's type.
-	 * @throws IllegalAccessException
-	 *             if the specified field cannot be accessed
+	 * @throws IllegalArgumentException if the value represented by the node is not
+	 *                                  the appropriate type for the field, or no
+	 *                                  case has been implemented to handle that
+	 *                                  field's type.
+	 * @throws IllegalAccessException   if the specified field cannot be accessed
 	 */
-	private JsonNode serializeField(JsonNodeFactory factory, Field f)
-			throws IllegalArgumentException, IllegalAccessException {
+	private JsonNode serializeField(JsonNodeFactory factory, Field f) throws IllegalAccessException {
 		if (f.getType().equals(boolean.class)) {
 			return factory.booleanNode(f.getBoolean(this));
-		}
-		else if (f.getType().equals(int.class)) {
+		} else if (f.getType().equals(int.class)) {
 			return factory.numberNode(f.getInt(this));
-		}
-		else if (f.getType().equals(long.class)) {
+		} else if (f.getType().equals(long.class)) {
 			return factory.numberNode(f.getLong(this));
-		}
-		else if (f.getType().equals(double.class)) {
+		} else if (f.getType().equals(double.class)) {
 			return factory.numberNode(f.getDouble(this));
-		}
-		else if (f.getType().equals(float.class)) {
+		} else if (f.getType().equals(float.class)) {
 			return factory.numberNode(f.getFloat(this));
-		}
-		else if (f.getType().equals(String.class)) {
+		} else if (f.getType().equals(String.class)) {
 			return factory.textNode((String) f.get(this));
-		}
-		else if (f.getType().equals(Path.class)) {
+		} else if (f.getType().equals(Path.class)) {
 			Path value = (Path) f.get(this);
 			return factory.textNode(value == null ? null : value.toString());
-		}
-		else if (f.getType().equals(Color.class)) {
+		} else if (f.getType().equals(Color.class)) {
 			Color value = (Color) f.get(this);
 			return factory.textNode(String.format("#%02X%02X%02X", // Format as uppercase hex string.
 					value.getRed(), value.getGreen(), value.getBlue()));
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException(
 					String.format("No case defined for field type %s", f.getType().getSimpleName()));
 		}
@@ -597,7 +581,7 @@ public class HVConfig {
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
-		if (o instanceof HVConfig == false)
+		if (!(o instanceof HVConfig))
 			return false;
 		return equals((HVConfig) o);
 	}
@@ -613,9 +597,8 @@ public class HVConfig {
 						return false;
 				}
 			}
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Error while processing config fields: ", e);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error(ER_CONFIG_FIELDS, e);
 		}
 
 		return true;

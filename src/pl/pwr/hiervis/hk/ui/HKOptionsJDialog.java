@@ -17,17 +17,17 @@ import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.interfaces.Node;
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.ui.elements.KeyBinds;
+import pl.pwr.hiervis.dimension_reduction.ui.elements.KeyBinds;
 import pl.pwr.hiervis.util.SwingUIUtils;
 import pl.pwr.hiervis.util.ui.GridBagConstraintsBuilder;
 
 public class HKOptionsJDialog extends JDialog {
 	private static final Logger logHK = LogManager.getLogger(HKOptionsJDialog.class);
 
-	private HVContext context;
-	private Node node;
+	private transient HVContext context;
+	private transient Node node;
 	private static final long serialVersionUID = -621178124268390305L;
-	private JButton btnGenerate;
+
 	private Window callerWindow;
 	private HKOptionsPanel content;
 
@@ -83,14 +83,14 @@ public class HKOptionsJDialog extends JDialog {
 		panel.setLayout(layout);
 
 		content = new HKOptionsPanel(context, node, logHK, generateAction);
-		content.setupDefaultValues(context.getConfig());
+		content.setupDefaultValues();
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane.setViewportView(content);
 
 		panel.add(scrollPane, builder.fill().position(0, 0).build());
-		btnGenerate = new JButton("Generate (ENTER)");
+		JButton btnGenerate = new JButton("Generate (ENTER)");
 		btnGenerate.addActionListener(this::generate);
 
 		panel.add(btnGenerate, builder.insets(5).fillHorizontal().position(0, 1).build());
@@ -110,7 +110,7 @@ public class HKOptionsJDialog extends JDialog {
 		KeyBinds.setKeybindENTER((JPanel) getContentPane(), generateAction);
 	}
 
-	protected void generate(ActionEvent e) {
+	protected void generate(@SuppressWarnings("unused") ActionEvent e) {
 		if (content.generate(callerWindow))
 			dispose();
 	}

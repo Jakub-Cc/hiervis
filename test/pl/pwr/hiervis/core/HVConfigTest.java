@@ -13,22 +13,22 @@ import org.junit.Test;
 
 public class HVConfigTest {
 
+	private static final String OUT_PATH = "out/newFileHVConfig.txt";
 	HVConfig hvConfig;
-	
+
 	public HVConfigTest() {
-		hvConfig= new HVConfig();
+		hvConfig = new HVConfig();
 	}
-	
+
 	@Test
-	public void testGet()
-	{
+	public void testGet() {
 		assertEquals(Color.red, hvConfig.getCurrentGroupColor());
-		assertEquals(Color.green, hvConfig.getChildGroupColor ());
-		assertEquals(Color.blue.brighter(), hvConfig.getAncestorGroupColor() );
-		assertEquals(Color.lightGray, hvConfig.getOtherGroupColor() );
-		assertEquals(Color.magenta, hvConfig.getHistogramColor() );
-		assertEquals(new Color( -1 ), hvConfig.getBackgroundColor() );
-		assertEquals(100, hvConfig.getNumberOfHistogramBins() );
+		assertEquals(Color.green, hvConfig.getChildGroupColor());
+		assertEquals(Color.blue.brighter(), hvConfig.getAncestorGroupColor());
+		assertEquals(Color.lightGray, hvConfig.getOtherGroupColor());
+		assertEquals(Color.magenta, hvConfig.getHistogramColor());
+		assertEquals(new Color(-1), hvConfig.getBackgroundColor());
+		assertEquals(100, hvConfig.getNumberOfHistogramBins());
 		assertEquals(3, hvConfig.getPointSize());
 		assertEquals(3, hvConfig.getDoubleFormatPrecision());
 		assertEquals(false, hvConfig.isMeasuresUseSubtree());
@@ -48,16 +48,16 @@ public class HVConfigTest {
 		assertEquals(false, hvConfig.isHkGenerateImages());
 		assertEquals(Color.black, hvConfig.getParentGroupColor());
 	}
-	
+
 	@Test
 	public void testFromHVConfig() {
-		HVConfig o = HVConfig.from( hvConfig );
+		HVConfig o = HVConfig.from(hvConfig);
 		assertNotEquals(o, hvConfig);
 	}
 
 	@Test
 	public void testFromFile() throws IOException {
-		hvConfig= HVConfig.from( new File("out/newFileHVConfigLoadConf.txt") );
+		hvConfig = HVConfig.from(new File("out/newFileHVConfigLoadConf.txt"));
 		assertEquals(Color.red, hvConfig.getChildGroupColor());
 	}
 
@@ -71,9 +71,9 @@ public class HVConfigTest {
 
 	@Test
 	public void testTo() throws IOException {
-		Files.deleteIfExists( Paths.get("out/newFileHVConfig.txt") );
-		hvConfig.to( new File("out/newFileHVConfig.txt"));
-		assertEquals(true, new File("out/newFileHVConfig.txt").exists() );
+		Files.deleteIfExists(Paths.get(OUT_PATH));
+		hvConfig.to(new File(OUT_PATH));
+		assertEquals(true, new File(OUT_PATH).exists());
 	}
 
 	@Test
@@ -92,157 +92,155 @@ public class HVConfigTest {
 	@Test
 	public void testSetParentGroupColor() {
 		hvConfig.setParentGroupColor(Color.black);
-		assertEquals(Color.black, hvConfig.getParentGroupColor() );
+		assertEquals(Color.black, hvConfig.getParentGroupColor());
 	}
 
 	@Test
 	public void testSetOtherGroupColor() {
 		hvConfig.setOtherGroupColor(Color.black);
-		assertEquals(Color.black, hvConfig.getOtherGroupColor()  );
+		assertEquals(Color.black, hvConfig.getOtherGroupColor());
 	}
-
 
 	@Test
 	public void testSetAncestorGroupColor() {
 		hvConfig.setAncestorGroupColor(Color.black);
-		assertEquals(Color.black, hvConfig.getAncestorGroupColor()  );
+		assertEquals(Color.black, hvConfig.getAncestorGroupColor());
 	}
 
 	@Test
 	public void testSetBackgroundColor() {
 		hvConfig.setBackgroundColor(Color.black);
-		assertEquals(Color.black, hvConfig.getBackgroundColor()  );
+		assertEquals(Color.black, hvConfig.getBackgroundColor());
 	}
-
 
 	@Test
 	public void testSetHistogramColor() {
 		hvConfig.setHistogramColor(Color.black);
-		assertEquals(Color.black, hvConfig.getHistogramColor()  );
+		assertEquals(Color.black, hvConfig.getHistogramColor());
 	}
 
 	@Test
 	public void testSetPointSize() {
 		hvConfig.setPointSize(150);
-		assertEquals(150 , hvConfig.getPointSize()  );
+		assertEquals(150, hvConfig.getPointSize());
 	}
 
 	@Test
 	public void testSetNumberOfHistogramBins() {
 		hvConfig.setNumberOfHistogramBins(150);
-		assertEquals(150 , hvConfig.getNumberOfHistogramBins()  );
+		assertEquals(150, hvConfig.getNumberOfHistogramBins());
 	}
 
 	@Test
 	public void testSetDoubleFormatPrecision() {
 		hvConfig.setDoubleFormatPrecision(150);
-		assertEquals(150 , hvConfig.getDoubleFormatPrecision()  );
+		assertEquals(150, hvConfig.getDoubleFormatPrecision());
 	}
-	
+
 	@Test
 	public void testSetMeasuresUseSubtree() {
 		hvConfig.setMeasuresUseSubtree(false);
-		assertEquals(true , hvConfig.isMeasuresUseSubtree()  );
+		assertEquals(true, hvConfig.isMeasuresUseSubtree());
 	}
 
 	@Test
 	public void testSetPreferredLookAndFeel() {
 		hvConfig.setPreferredLookAndFeel("look");
-		assertEquals("look" , hvConfig.getPreferredLookAndFeel()  );
+		assertEquals("look", hvConfig.getPreferredLookAndFeel());
 	}
 
 	@Test
 	public void testSetStopXfceLafChange() {
 		hvConfig.setStopXfceLafChange(false);
-		assertEquals(false , hvConfig.isStopXfceLafChange()  );
+		assertEquals(false, hvConfig.isStopXfceLafChange());
 	}
 
 	@Test
 	public void testSetHkClusters() {
 		hvConfig.setHkClusters(150);
-		assertEquals(150 , hvConfig.getHkClusters()  );
+		assertEquals(150, hvConfig.getHkClusters());
 	}
 
 	@Test
 	public void testSetHkIterations() {
 		hvConfig.setHkIterations(150);
-		assertEquals(150 , hvConfig.getHkIterations()  );
+		assertEquals(150, hvConfig.getHkIterations());
 	}
 
 	@Test
 	public void testSetHkRepetitions() {
 		hvConfig.setHkRepetitions(150);
-		assertEquals(150 , hvConfig.getHkRepetitions()  );		
+		assertEquals(150, hvConfig.getHkRepetitions());
 	}
 
 	@Test
 	public void testSetHkDendrogramHeight() {
 		hvConfig.setHkDendrogramHeight(150);
-		assertEquals(150 , hvConfig.getHkDendrogramHeight()  );
+		assertEquals(150, hvConfig.getHkDendrogramHeight());
 	}
 
 	@Test
 	public void testSetHkMaxNodes() {
-	hvConfig.setHkMaxNodes(150);
-	assertEquals(150 , hvConfig.getHkMaxNodes()  );
+		hvConfig.setHkMaxNodes(150);
+		assertEquals(150, hvConfig.getHkMaxNodes());
 	}
 
 	@Test
 	public void testSetHkEpsilon() {
 		hvConfig.setHkEpsilon(150);
-		assertEquals(150 , hvConfig.getHkEpsilon()  );
+		assertEquals(150, hvConfig.getHkEpsilon());
 	}
 
 	@Test
 	public void testSetHkLittleValue() {
 		hvConfig.setHkLittleValue(150);
-		assertEquals(150 , hvConfig.getHkLittleValue()  );
+		assertEquals(150, hvConfig.getHkLittleValue());
 	}
 
 	@Test
 	public void testSetHkWithTrueClass() {
 		hvConfig.setHkWithTrueClass(false);
-		assertEquals(false , hvConfig.isHkWithTrueClass()  );
+		assertEquals(false, hvConfig.isHkWithTrueClass());
 	}
 
 	@Test
 	public void testSetHkWithInstanceNames() {
 		hvConfig.setHkWithInstanceNames(false);
-		assertEquals(false , hvConfig.isHkWithInstanceNames()  );
+		assertEquals(false, hvConfig.isHkWithInstanceNames());
 	}
 
 	@Test
 	public void testSetHkWithDiagonalMatrix() {
 		hvConfig.setHkWithDiagonalMatrix(false);
-		assertEquals(false , hvConfig.isHkWithDiagonalMatrix()  );
+		assertEquals(false, hvConfig.isHkWithDiagonalMatrix());
 	}
+
 	@Test
 	public void testSetHkNoStaticCenter() {
 		hvConfig.setHkNoStaticCenter(false);
-		assertEquals(false , hvConfig.isHkNoStaticCenter()  );
+		assertEquals(false, hvConfig.isHkNoStaticCenter());
 	}
 
 	@Test
 	public void testSetHkGenerateImages() {
 		hvConfig.setHkGenerateImages(false);
-		assertEquals(false , hvConfig.isHkGenerateImages()  );
+		assertEquals(false, hvConfig.isHkGenerateImages());
 	}
 
 	@Test
 	public void testEqualsObject() {
-		assertEquals(false, hvConfig.equals((Object)null));
-		assertEquals(false, hvConfig.equals( new double [] {} ));
+		assertEquals(false, hvConfig.equals((Object) null));
 		Object o = new HVConfig();
-		assertEquals(true, hvConfig.equals( o ));
+		assertEquals(true, hvConfig.equals(o));
 	}
 
 	@Test
 	public void testEqualsHVConfig() {
 		HVConfig o = new HVConfig();
 		o.setAncestorGroupColor(Color.black);
-		assertEquals(false, hvConfig.equals( o ));
+		assertEquals(false, hvConfig.equals(o));
 		o = new HVConfig();
-		assertEquals(true, hvConfig.equals( o ));
+		assertEquals(true, hvConfig.equals(o));
 	}
 
 	@Test
@@ -252,7 +250,7 @@ public class HVConfigTest {
 
 	@Test
 	public void testGetChildGroupColor() {
-		assertEquals(Color.green, hvConfig.getChildGroupColor ());
+		assertEquals(Color.green, hvConfig.getChildGroupColor());
 	}
 
 	@Test
@@ -262,41 +260,32 @@ public class HVConfigTest {
 
 	@Test
 	public void testGetOtherGroupColor() {
-		assertEquals(Color.lightGray, hvConfig.getOtherGroupColor() );
+		assertEquals(Color.lightGray, hvConfig.getOtherGroupColor());
 	}
 
-	
 	@Test
 	public void testGetAncestorGroupColor() {
-		assertEquals(Color.blue.brighter(), hvConfig.getAncestorGroupColor() );
+		assertEquals(Color.blue.brighter(), hvConfig.getAncestorGroupColor());
 	}
-
-	
 
 	@Test
 	public void testGetBackgroundColor() {
-		assertEquals(new Color( -1 ), hvConfig.getBackgroundColor() );
+		assertEquals(new Color(-1), hvConfig.getBackgroundColor());
 	}
-
-	
 
 	@Test
 	public void testGetHistogramColor() {
-		assertEquals(Color.magenta, hvConfig.getHistogramColor() );
+		assertEquals(Color.magenta, hvConfig.getHistogramColor());
 	}
-
-	
 
 	@Test
 	public void testGetPointSize() {
 		assertEquals(3, hvConfig.getPointSize());
 	}
 
-
-	
 	@Test
 	public void testGetNumberOfHistogramBins() {
-		assertEquals(100, hvConfig.getNumberOfHistogramBins() );
+		assertEquals(100, hvConfig.getNumberOfHistogramBins());
 	}
 
 	@Test
@@ -304,20 +293,16 @@ public class HVConfigTest {
 		assertEquals(3, hvConfig.getDoubleFormatPrecision());
 	}
 
-	
 	@Test
 	public void testIsMeasuresUseSubtree() {
 		assertEquals(false, hvConfig.isMeasuresUseSubtree());
 
 	}
 
-
 	@Test
 	public void testGetPreferredLookAndFeel() {
 		assertEquals("", hvConfig.getPreferredLookAndFeel());
 	}
-
-
 
 	@Test
 	public void testIsStopXfceLafChange() {
@@ -329,70 +314,55 @@ public class HVConfigTest {
 		assertEquals(2, hvConfig.getHkClusters());
 	}
 
-
-
 	@Test
 	public void testGetHkIterations() {
 		assertEquals(10, hvConfig.getHkIterations());
 	}
-
-
 
 	@Test
 	public void testGetHkRepetitions() {
 		assertEquals(10, hvConfig.getHkRepetitions());
 	}
 
-
 	@Test
 	public void testGetHkDendrogramHeight() {
 		assertEquals(2, hvConfig.getHkDendrogramHeight());
 	}
-
 
 	@Test
 	public void testGetHkMaxNodes() {
 		assertEquals(-1, hvConfig.getHkMaxNodes());
 	}
 
-
 	@Test
 	public void testGetHkEpsilon() {
 		assertEquals(10, hvConfig.getHkEpsilon());
 	}
-
 
 	@Test
 	public void testGetHkLittleValue() {
 		assertEquals(5, hvConfig.getHkLittleValue());
 	}
 
-
 	@Test
 	public void testIsHkWithTrueClass() {
 		assertEquals(true, hvConfig.isHkWithTrueClass());
 	}
-
-
 
 	@Test
 	public void testIsHkWithInstanceNames() {
 		assertEquals(false, hvConfig.isHkWithInstanceNames());
 	}
 
-
 	@Test
 	public void testIsHkWithDiagonalMatrix() {
 		assertEquals(true, hvConfig.isHkWithDiagonalMatrix());
 	}
 
-
-
 	@Test
 	public void testIsHkNoStaticCenter() {
 		assertEquals(false, hvConfig.isHkNoStaticCenter());
 	}
-
 
 	@Test
 	public void testIsHkGenerateImages() {

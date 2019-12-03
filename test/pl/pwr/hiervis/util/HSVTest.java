@@ -13,11 +13,7 @@ public class HSVTest {
 	public HSVTest() {
 		hsv = new HSV(0,1,1);
 	}
-	
-	@Test
-	public void testHSVFloatFloatFloat() {
-		System.out.println( hsv.toColor().toString());
-	}
+
 
 	@Test
 	public void testHSVHSV() {

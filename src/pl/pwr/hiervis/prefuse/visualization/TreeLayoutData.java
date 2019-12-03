@@ -1,16 +1,13 @@
 package pl.pwr.hiervis.prefuse.visualization;
 
-import prefuse.data.Tree;
-
-
 /**
- * A simple class containing data and logic used to compute the layout of a tree.
+ * A simple class containing data and logic used to compute the layout of a
+ * tree.
  * 
  * @author Tomasz Bachmiński
  *
  */
-public class TreeLayoutData
-{
+public class TreeLayoutData {
 	private int nodeSize;
 	private int treeOrientation;
 
@@ -24,12 +21,7 @@ public class TreeLayoutData
 	/** The spacing to maintain between neighboring subtrees. */
 	private double subtreeSpace;
 
-
-	public TreeLayoutData(
-		Tree tree,
-		int treeDepth, int treeWidth,
-		int availableWidth, int availableHeight )
-	{
+	public TreeLayoutData(int treeDepth, int treeWidth, int availableWidth, int availableHeight) {
 		final double nodeSizeToDepthSpaceRatio = 2.0;
 		final double nodeSizeToSiblingsSpaceRatio = 4.0;
 
@@ -45,76 +37,67 @@ public class TreeLayoutData
 		layoutWidth = availableWidth;
 		layoutHeight = availableHeight;
 
-		depthSpace = layoutHeight
-			/ (double)( nodeSizeToDepthSpaceRatio * treeDepth + nodeSizeToDepthSpaceRatio + treeDepth );
-		depthSpace = Math.max( 1.0, depthSpace );
+		depthSpace = layoutHeight / (nodeSizeToDepthSpaceRatio * treeDepth + nodeSizeToDepthSpaceRatio + treeDepth);
+		depthSpace = Math.max(1.0, depthSpace);
 
 		// based on above calculation - compute "optimal" size of each node on image
-		heightBasedSizeOfNodes = (int)( nodeSizeToDepthSpaceRatio * depthSpace );
+		heightBasedSizeOfNodes = (int) (nodeSizeToDepthSpaceRatio * depthSpace);
 
-		siblingSpace = ( layoutWidth ) / ( treeWidth * nodeSizeToSiblingsSpaceRatio + treeWidth - 1.0 );
-		siblingSpace = Math.max( 1.0, siblingSpace );
+		siblingSpace = (layoutWidth) / (treeWidth * nodeSizeToSiblingsSpaceRatio + treeWidth - 1.0);
+		siblingSpace = Math.max(1.0, siblingSpace);
 
 		subtreeSpace = siblingSpace;
-		widthBasedSizeOfNodes = (int)( nodeSizeToSiblingsSpaceRatio * siblingSpace );
+		widthBasedSizeOfNodes = (int) (nodeSizeToSiblingsSpaceRatio * siblingSpace);
 
 		// below use MAXIMUM height/width
-		if ( widthBasedSizeOfNodes < heightBasedSizeOfNodes ) {
+		if (widthBasedSizeOfNodes < heightBasedSizeOfNodes) {
 			nodeSize = widthBasedSizeOfNodes;
 			// assume maximum possible size
-			depthSpace = ( layoutHeight - treeDepth * nodeSize - nodeSize ) / (double)treeDepth;
-			depthSpace = Math.max( 1.0, depthSpace );
-		}
-		else {
+			depthSpace = (layoutHeight - treeDepth * nodeSize - nodeSize) / (double) treeDepth;
+			depthSpace = Math.max(1.0, depthSpace);
+		} else {
 			nodeSize = heightBasedSizeOfNodes;
 			// assume maximum possible size
-			siblingSpace = ( layoutWidth - treeWidth * nodeSize ) / ( treeWidth - 1.0 );
-			siblingSpace = Math.max( 1.0, siblingSpace );
+			siblingSpace = (layoutWidth - treeWidth * nodeSize) / (treeWidth - 1.0);
+			siblingSpace = Math.max(1.0, siblingSpace);
 			subtreeSpace = siblingSpace;
 		}
 	}
 
-	public int getNodeSize()
-	{
+	public int getNodeSize() {
 		return nodeSize;
 	}
 
-	public int getTreeOrientation()
-	{
+	public int getTreeOrientation() {
 		return treeOrientation;
 	}
 
-	public int getLayoutWidth()
-	{
+	public int getLayoutWidth() {
 		return layoutWidth;
 	}
 
-	public int getLayoutHeight()
-	{
+	public int getLayoutHeight() {
 		return layoutHeight;
 	}
 
 	/**
 	 * Returns the spacing to maintain between depth levels of the tree.
 	 */
-	public double getDepthSpace()
-	{
+	public double getDepthSpace() {
 		return depthSpace;
 	}
 
 	/**
 	 * Returns the spacing to maintain between sibling nodes.
 	 */
-	public double getSiblingSpace()
-	{
+	public double getSiblingSpace() {
 		return siblingSpace;
 	}
 
 	/**
 	 * Returns the spacing to maintain between neighboring subtrees.
 	 */
-	public double getSubtreeSpace()
-	{
+	public double getSubtreeSpace() {
 		return subtreeSpace;
 	}
 }

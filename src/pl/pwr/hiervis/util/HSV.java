@@ -11,6 +11,7 @@ import java.awt.Color;
  */
 public class HSV
 {
+	private static final String LESS_THAN_1 = " < 1.0";
 	private float h;
 	private float s;
 	private float v;
@@ -46,21 +47,21 @@ public class HSV
 	public void setHue( float hue )
 	{
 		if ( hue < 0 || hue > 1.0f )
-			throw new IllegalArgumentException( "Hue: 0 < " + hue + " < 1.0" );
+			throw new IllegalArgumentException( "Hue: 0 < " + hue + LESS_THAN_1 );
 		h = hue;
 	}
 
 	public void setSaturation( float saturation )
 	{
 		if ( saturation < 0 || saturation > 1.0f )
-			throw new IllegalArgumentException( "Saturation: 0 < " + saturation + " < 1.0" );
+			throw new IllegalArgumentException( "Saturation: 0 < " + saturation + LESS_THAN_1 );
 		s = saturation;
 	}
 
 	public void setValue( float value )
 	{
 		if ( value < 0 || value > 1.0f )
-			throw new IllegalArgumentException( "Value: 0 < " + value + " < 1.0" );
+			throw new IllegalArgumentException( "Value: 0 < " + value + LESS_THAN_1 );
 		v = value;
 	}
 

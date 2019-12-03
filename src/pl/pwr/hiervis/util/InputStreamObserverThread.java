@@ -9,21 +9,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A thread that continually observes and consumes bytes sent down an input stream,
- * and converts them into a string message that can be looked up later.
+ * A thread that continually observes and consumes bytes sent down an input
+ * stream, and converts them into a string message that can be looked up later.
  * 
- * Primarily intended to be used to intercept console output of programs running as subprocesses.
+ * Primarily intended to be used to intercept console output of programs running
+ * as subprocesses.
  * 
  * @author Tomasz Bachmiński
  *
  */
-public class InputStreamObserverThread extends Thread
-{
+public class InputStreamObserverThread extends Thread {
 	/**
 	 * Sent when a new message appears in the input stream.
 	 * 
-	 * @param first
-	 *            the new message
+	 * @param first the new message
 	 */
 	public final Event<String> messageReceived = new Event<>();
 
@@ -33,58 +32,49 @@ public class InputStreamObserverThread extends Thread
 
 	private volatile String message;
 
-
 	/**
 	 * 
-	 * @param is
-	 *            the input stream to observe. The stream will not closed when the thread dies.
+	 * @param is the input stream to observe. The stream will not closed when the
+	 *           thread dies.
 	 */
-	public InputStreamObserverThread( InputStream is )
-	{
-		this( is, false );
+	public InputStreamObserverThread(InputStream is) {
+		this(is, false);
 	}
 
 	/**
 	 * 
-	 * @param is
-	 *            the input stream to observe
-	 * @param close
-	 *            whether to close the stream once the thread dies.
+	 * @param is    the input stream to observe
+	 * @param close whether to close the stream once the thread dies.
 	 */
-	public InputStreamObserverThread( InputStream is, boolean close )
-	{
-		setName( "InputStreamObserverThread" );
-		setDaemon( true );
+	public InputStreamObserverThread(InputStream is, boolean close) {
+		setName("InputStreamObserverThread");
+		setDaemon(true);
 
-		in = new BufferedReader( new InputStreamReader( is ) );
+		in = new BufferedReader(new InputStreamReader(is));
 		this.close = close;
 	}
 
 	@Override
-	public void run()
-	{
+	public void run() {
 		try {
-			while ( !interrupted() ) {
-				if ( in.ready() ) {
+			while (!interrupted()) {
+				if (in.ready()) {
 					String line = in.readLine();
-					if ( line != null ) {
+					if (line != null) {
 						message = line;
-						messageReceived.broadcast( message );
+						messageReceived.broadcast(message);
 						log.trace(message);
 					}
 				}
 			}
-		}
-		catch ( IOException e ) {
-			e.printStackTrace();
-		}
-		finally {
+		} catch (IOException e) {
+			log.error(e);
+		} finally {
 			try {
-				if ( close ) {
+				if (close) {
 					in.close();
 				}
-			}
-			catch ( IOException e ) {
+			} catch (IOException e) {
 				// Ignore.
 			}
 		}
@@ -93,8 +83,7 @@ public class InputStreamObserverThread extends Thread
 	/**
 	 * @return the latest message that has been supplied by the input stream.
 	 */
-	public String getLatestMessage()
-	{
+	public String getLatestMessage() {
 		return message;
 	}
 }

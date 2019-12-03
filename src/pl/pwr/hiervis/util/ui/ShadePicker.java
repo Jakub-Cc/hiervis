@@ -15,205 +15,176 @@ import javax.swing.SwingUtilities;
 import pl.pwr.hiervis.util.HSV;
 import pl.pwr.hiervis.util.Utils;
 
-
 /**
  * A component which allows the user to select a color's shade.
  * 
  * @author Tomasz Bachmiński
  *
  */
-public class ShadePicker extends JComponent
-{
+public class ShadePicker extends JComponent {
+	private static final String ARGUMENT_MUST_NOT_BE_NULL = "Argument must not be null.";
 	public static final String SELECTED_HUE = ShadePicker.class.getCanonicalName() + ":SELECTED_HUE";
 	public static final String SELECTED_SATURATION = ShadePicker.class.getCanonicalName() + ":SELECTED_SATURATION";
 	public static final String SELECTED_VALUE = ShadePicker.class.getCanonicalName() + ":SELECTED_VALUE";
 
 	private static final long serialVersionUID = 3299771386071172028L;
-	private static final Color gradientMaskTranslucent = new Color( 0, 0, 0, 0 );
+	private static final Color gradientMaskTranslucent = new Color(0, 0, 0, 0);
 
 	private int selectionRadius = 5;
 
-	private HSV hsv = new HSV( 1f, 0f, 1f );
+	private transient HSV hsv = new HSV(1f, 0f, 1f);
 
-
-	public ShadePicker()
-	{
+	public ShadePicker() {
 		super();
 
 		MouseAdapter ml = new MouseAdapter() {
 			@Override
-			public void mousePressed( MouseEvent e )
-			{
-				setSelection( e );
+			public void mousePressed(MouseEvent e) {
+				setSelection(e);
 			}
 
 			@Override
-			public void mouseDragged( MouseEvent e )
-			{
-				setSelection( e );
+			public void mouseDragged(MouseEvent e) {
+				setSelection(e);
 			}
 		};
 
-		this.addMouseListener( ml );
-		this.addMouseMotionListener( ml );
+		this.addMouseListener(ml);
+		this.addMouseMotionListener(ml);
 	}
 
-	public void setSelectionRadius( int radius )
-	{
-		if ( radius <= 0 )
-			throw new IllegalArgumentException( "Radius must be greater than 0." );
+	public void setSelectionRadius(int radius) {
+		if (radius <= 0)
+			throw new IllegalArgumentException("Radius must be greater than 0.");
 		selectionRadius = radius;
 		repaint();
 	}
 
-	public int getSelectionRadius()
-	{
+	public int getSelectionRadius() {
 		return selectionRadius;
 	}
 
-	public void setHue( float hue )
-	{
+	public void setHue(float hue) {
 		float o = hsv.getHue();
-		hsv.setHue( hue );
+		hsv.setHue(hue);
 		repaint();
-		firePropertyChange( SELECTED_HUE, o, hue );
+		firePropertyChange(SELECTED_HUE, o, hue);
 	}
 
-	public void setHue( Color color )
-	{
-		if ( color == null )
-			throw new IllegalArgumentException( "Argument must not be null." );
-		setHue( new HSV( color ).getHue() );
+	public void setHue(Color color) {
+		if (color == null)
+			throw new IllegalArgumentException(ARGUMENT_MUST_NOT_BE_NULL);
+		setHue(new HSV(color).getHue());
 	}
 
-	public void setSaturation( float saturation )
-	{
+	public void setSaturation(float saturation) {
 		float o = hsv.getSaturation();
-		hsv.setSaturation( saturation );
+		hsv.setSaturation(saturation);
 		repaint();
-		firePropertyChange( SELECTED_SATURATION, o, saturation );
+		firePropertyChange(SELECTED_SATURATION, o, saturation);
 	}
 
-	public void setSaturation( Color color )
-	{
-		if ( color == null )
-			throw new IllegalArgumentException( "Argument must not be null." );
-		setSaturation( new HSV( color ).getSaturation() );
+	public void setSaturation(Color color) {
+		if (color == null)
+			throw new IllegalArgumentException(ARGUMENT_MUST_NOT_BE_NULL);
+		setSaturation(new HSV(color).getSaturation());
 	}
 
-	public void setValue( float value )
-	{
+	public void setValue(float value) {
 		float o = hsv.getValue();
-		hsv.setValue( value );
+		hsv.setValue(value);
 		repaint();
-		firePropertyChange( SELECTED_VALUE, o, value );
+		firePropertyChange(SELECTED_VALUE, o, value);
 	}
 
-	public void setValue( Color color )
-	{
-		if ( color == null )
-			throw new IllegalArgumentException( "Argument must not be null." );
-		setValue( new HSV( color ).getValue() );
+	public void setValue(Color color) {
+		if (color == null)
+			throw new IllegalArgumentException(ARGUMENT_MUST_NOT_BE_NULL);
+		setValue(new HSV(color).getValue());
 	}
 
-	public void setSelection( float saturation, float value )
-	{
+	public void setSelection(float saturation, float value) {
 		float os = hsv.getSaturation();
 		float ov = hsv.getValue();
 
-		hsv.setSaturation( saturation );
-		hsv.setValue( value );
+		hsv.setSaturation(saturation);
+		hsv.setValue(value);
 
 		repaint();
 
-		firePropertyChange( SELECTED_SATURATION, os, saturation );
-		firePropertyChange( SELECTED_VALUE, ov, value );
+		firePropertyChange(SELECTED_SATURATION, os, saturation);
+		firePropertyChange(SELECTED_VALUE, ov, value);
 	}
 
-	public void setSelection( Color color )
-	{
-		if ( color == null )
-			throw new IllegalArgumentException( "Argument must not be null." );
+	public void setSelection(Color color) {
+		if (color == null)
+			throw new IllegalArgumentException(ARGUMENT_MUST_NOT_BE_NULL);
 
-		HSV hsv = new HSV( color );
-		setHue( hsv.getHue() );
-		setSelection( hsv.getSaturation(), hsv.getValue() );
+		HSV newhsv = new HSV(color);
+		setHue(newhsv.getHue());
+		setSelection(newhsv.getSaturation(), newhsv.getValue());
 	}
 
-	private void setSelection( MouseEvent e )
-	{
-		if ( SwingUtilities.isLeftMouseButton( e ) ) {
+	private void setSelection(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
 			float width = getWidth();
 			float height = getHeight();
 
-			float x = Utils.clamp( 0, e.getX(), width );
-			float y = Utils.clamp( 0, e.getY(), height );
+			float x = Utils.clamp(0, e.getX(), width);
+			float y = Utils.clamp(0, e.getY(), height);
 
-			setSelection( x / width, 1f - ( y / height ) );
+			setSelection(x / width, 1f - (y / height));
 		}
 	}
 
-	public HSV getSelection()
-	{
-		return new HSV( hsv );
+	public HSV getSelection() {
+		return new HSV(hsv);
 	}
 
 	@Override
-	public void paintComponent( Graphics g )
-	{
-		super.paintComponent( g );
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
 
-		Graphics2D g2 = (Graphics2D)g;
-		g2.setRenderingHint(
-			RenderingHints.KEY_ANTIALIASING,
-			RenderingHints.VALUE_ANTIALIAS_ON
-		);
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		paintShades( g2 );
-		paintSelectionIndicator( g2 );
+		paintShades(g2);
+		paintSelectionIndicator(g2);
 	}
 
-	protected void paintShades( Graphics g )
-	{
+	protected void paintShades(Graphics g) {
 		int w = getWidth();
 		int h = getHeight();
 
-		Graphics2D g2 = (Graphics2D)g;
+		Graphics2D g2 = (Graphics2D) g;
 
-		g2.setColor( Color.lightGray );
-		g2.fillRect( 0, 0, w, h );
+		g2.setColor(Color.lightGray);
+		g2.fillRect(0, 0, w, h);
 
 		Paint p = g2.getPaint();
 
-		GradientPaint primary = new GradientPaint(
-			0, 0, Color.white,
-			w, 0, new HSV( hsv.getHue(), 1.0f, 1.0f ).toColor()
-		);
-		GradientPaint secondary = new GradientPaint(
-			0, 0, gradientMaskTranslucent,
-			0, h, Color.black
-		);
+		GradientPaint primary = new GradientPaint(0, 0, Color.white, w, 0, new HSV(hsv.getHue(), 1.0f, 1.0f).toColor());
+		GradientPaint secondary = new GradientPaint(0, 0, gradientMaskTranslucent, 0, h, Color.black);
 
-		g2.setPaint( primary );
-		g2.fillRect( 0, 0, w, h );
-		g2.setPaint( secondary );
-		g2.fillRect( 0, 0, w, h );
+		g2.setPaint(primary);
+		g2.fillRect(0, 0, w, h);
+		g2.setPaint(secondary);
+		g2.fillRect(0, 0, w, h);
 
-		g2.setPaint( p );
+		g2.setPaint(p);
 	}
 
-	protected void paintSelectionIndicator( Graphics g )
-	{
-		final int s = (int)( hsv.getSaturation() * getWidth() );
-		final int v = (int)( ( 1 - hsv.getValue() ) * getHeight() );
+	protected void paintSelectionIndicator(Graphics g) {
+		final int s = (int) (hsv.getSaturation() * getWidth());
+		final int v = (int) ((1 - hsv.getValue()) * getHeight());
 
 		// Color the selection indicator depending on its distance from top-left corner,
 		// so that it remains visible.
-		float d = (float)( Math.sqrt( Math.pow( 1 - hsv.getValue(), 2 ) + Math.pow( hsv.getSaturation(), 2 ) ) );
+		float d = (float) (Math.sqrt(Math.pow(1 - hsv.getValue(), 2) + Math.pow(hsv.getSaturation(), 2)));
 		// Cap it at some point to prevent it from melding with gray background.
 		d = d > 0.4 ? 1 : 0;
 
-		g.setColor( new HSV( 0, 0, d ).toColor() );
-		g.drawOval( s - selectionRadius, v - selectionRadius, selectionRadius * 2, selectionRadius * 2 );
+		g.setColor(new HSV(0, 0, d).toColor());
+		g.drawOval(s - selectionRadius, v - selectionRadius, selectionRadius * 2, selectionRadius * 2);
 	}
 }

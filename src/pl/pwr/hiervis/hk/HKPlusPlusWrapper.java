@@ -36,7 +36,7 @@ public class HKPlusPlusWrapper {
 	/** Sent when the subprocess is terminated by the main process. */
 	public final Event<HKPlusPlusWrapper> subprocessAborted = new Event<>();
 
-	private volatile Process process;
+	private Process process;
 	private InputStreamObserverThread outObserver;
 	private OperationProgressFrame waitFrame;
 	private HVConfig cfg;
@@ -49,9 +49,9 @@ public class HKPlusPlusWrapper {
 
 	public void start(HKPlusPlusParameter pPPar) throws IOException {
 		plusParameter = pPPar;
-		start(pPPar.owner, pPPar.trueClassAttribute, pPPar.instanceNames, pPPar.diagonalMatrix,
-				pPPar.disableStaticCenter, pPPar.generateImages, pPPar.epsilon, pPPar.littleValue, pPPar.clusters,
-				pPPar.iterations, pPPar.repeats, pPPar.dendrogramSize, pPPar.maxNodeCount, pPPar.verbose);
+		start(pPPar.getOwner(), pPPar.isTrueClassAttribute(), pPPar.isInstanceNames(), pPPar.isDiagonalMatrix(),
+				pPPar.isDisableStaticCenter(), pPPar.isGenerateImages(), pPPar.getEpsilon(), pPPar.getLittleValue(), pPPar.getClusters(),
+				pPPar.getIterations(), pPPar.getRepeats(), pPPar.getDendrogramSize(), pPPar.getMaxNodeCount(), pPPar.isVerbose());
 
 	}
 
@@ -98,7 +98,7 @@ public class HKPlusPlusWrapper {
 			maxNodeCount = Integer.MAX_VALUE;
 		}
 		// Clear the output dir so's not to litter
-		Arrays.stream(hkOutDir.listFiles()).forEach(file -> file.delete());
+		Arrays.stream(hkOutDir.listFiles()).forEach(File::delete);
 
 		// Set HK's working dir to the output directory, so that we keep all output
 		// files in one place

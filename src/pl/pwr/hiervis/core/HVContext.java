@@ -15,9 +15,9 @@ import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.common.HierarchyBuilder;
 import basic_hierarchy.interfaces.Hierarchy;
-import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
-import pl.pwr.hiervis.dimensionReduction.DimensionReductionManager;
-import pl.pwr.hiervis.dimensionReduction.methods.core.DimensionReductionI;
+import pl.pwr.hiervis.dimension_reduction.CalculatedDimensionReduction;
+import pl.pwr.hiervis.dimension_reduction.DimensionReductionManager;
+import pl.pwr.hiervis.dimension_reduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.hierarchy.HierarchyLoaderThread;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
@@ -64,11 +64,11 @@ public class HVContext {
 	public final Event<HVConfig> configChanged = new Event<>();
 
 	/** Sent when dimension method is performed. */
-	public final Event<DimensionReductionI> dimensionReductionCalculating = new Event<DimensionReductionI>();
+	public final Event<DimensionReductionI> dimensionReductionCalculating = new Event<>();
 	/** Sent when dimension method is done calculating. */
-	public final Event<CalculatedDimensionReduction> dimensionReductionCalculated = new Event<CalculatedDimensionReduction>();
+	public final Event<CalculatedDimensionReduction> dimensionReductionCalculated = new Event<>();
 	/** Sent when dimension method is selected. */
-	public final Event<Integer> dimensionReductionSelected = new Event<Integer>();
+	public final Event<Integer> dimensionReductionSelected = new Event<>();
 
 	// Members
 
@@ -78,7 +78,7 @@ public class HVContext {
 	/** The raw hierarchy data, as it was loaded from the file. */
 	private LoadedHierarchy currentHierarchy = null;
 
-	private List<LoadedHierarchy> hierarchyList = new ArrayList<LoadedHierarchy>();
+	private List<LoadedHierarchy> hierarchyList = new ArrayList<>();
 
 	private VisualizerFrame hierarchyFrame;
 	private HierarchyStatisticsFrame statsFrame;
@@ -106,9 +106,9 @@ public class HVContext {
 
 	public void createGUI(String subtitle) {
 		if (hierarchyFrame == null) {
-			hierarchyFrame = new VisualizerFrame(this, subtitle);
-			statsFrame = new HierarchyStatisticsFrame(this, hierarchyFrame, subtitle);
-			visFrame = new InstanceVisualizationsFrame(this, hierarchyFrame, subtitle);
+			hierarchyFrame = new VisualizerFrame(subtitle);
+			statsFrame = new HierarchyStatisticsFrame(hierarchyFrame, subtitle);
+			visFrame = new InstanceVisualizationsFrame(this, subtitle);
 
 			hierarchyFrame.hierarchyTabClosed.addListener(this::onHierarchyTabClosed);
 			hierarchyFrame.hierarchyTabSelected.addListener(this::onHierarchyTabSelected);
@@ -154,8 +154,7 @@ public class HVContext {
 					hierarchyChanged.broadcast(hierarchy);
 				} else {
 					SwingUIUtils.executeAsyncWithWaitWindow(null, "Processing hierarchy data...", log, true,
-							() -> hierarchy.processHierarchy(config), () -> hierarchyChanged.broadcast(hierarchy),
-							null);
+							hierarchy::processHierarchy, () -> hierarchyChanged.broadcast(hierarchy), null);
 				}
 			}
 		}
@@ -223,7 +222,8 @@ public class HVContext {
 	 * @param file   the file to load
 	 */
 	public void loadFile(Window window, File file) {
-		log.trace(String.format("Selected file: '%s'", file));
+		if (log.isTraceEnabled())
+			log.trace(String.format("Selected file: '%s'", file));
 
 		LoadedHierarchy.Options options = null;
 		try {
@@ -233,7 +233,7 @@ public class HVContext {
 			options = getHierarchyOptions();
 		}
 
-		FileLoadingOptionsDialog optionsDialog = new FileLoadingOptionsDialog(this, window, options);
+		FileLoadingOptionsDialog optionsDialog = new FileLoadingOptionsDialog(window, options);
 		optionsDialog.setTitle(optionsDialog.getTitle() + " ( " + file.getName() + " )");
 		optionsDialog.setLocationRelativeTo(window);
 		optionsDialog.setVisible(true);
@@ -297,8 +297,8 @@ public class HVContext {
 			progressFrame.dispose();
 		});
 
-		thread.fileLoaded.addListener(h -> SwingUtilities.invokeLater(() -> progressFrame.dispose()));
-		thread.errorOcurred.addListener(e -> SwingUtilities.invokeLater(() -> progressFrame.dispose()));
+		thread.fileLoaded.addListener(h -> SwingUtilities.invokeLater(progressFrame::dispose));
+		thread.errorOcurred.addListener(e -> SwingUtilities.invokeLater(progressFrame::dispose));
 		thread.fileLoaded.addListener(this::onFileLoaded);
 		thread.errorOcurred.addListener(this::onFileError);
 
@@ -335,17 +335,14 @@ public class HVContext {
 	}
 
 	private void onFileError(Exception ex) {
-		SwingUtilities.invokeLater(() -> {
-			SwingUIUtils
-					.showInfoDialog("An error ocurred while loading the specified file. Most often this happens when "
-							+ "incorrect settings were selected for the file in question." + "\n\nError message:\n"
-							+ ex.getMessage());
-		});
+		SwingUtilities.invokeLater(() -> SwingUIUtils
+				.showInfoDialog("An error ocurred while loading the specified file. Most often this happens when "
+						+ "incorrect settings were selected for the file in question." + "\n\nError message:\n"
+						+ ex.getMessage()));
 	}
 
 	private void onHierarchyChanged(LoadedHierarchy h) {
 		measureManager.postAutoComputeTasksFor(h.measureHolder, h.getMainHierarchy());
-		System.gc();
 	}
 
 	private void onHierarchyTabSelected(int index) {
@@ -365,8 +362,6 @@ public class HVContext {
 		}
 
 		hierarchyClosed.broadcast(h);
-
-		System.gc();
 	}
 
 	public DimensionReductionManager getDimensionReductionMenager() {

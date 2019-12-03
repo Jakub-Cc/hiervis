@@ -106,10 +106,8 @@ public class LoadedHierarchyUtils {
 		List<BasicNode> nodes = new LinkedList<>();
 		nodes.add(root);
 
-		source.getMainHierarchy().getRoot().getSubtreeInstances().forEach(in -> {
-			root.addInstance(
-					new BasicInstance(in.getInstanceName(), Constants.ROOT_ID, in.getData(), in.getTrueClass()));
-		});
+		source.getMainHierarchy().getRoot().getSubtreeInstances().forEach(in -> root.addInstance(
+				new BasicInstance(in.getInstanceName(), Constants.ROOT_ID, in.getData(), in.getTrueClass())));
 
 		Hierarchy flatHierarchy = HierarchyUtils.buildHierarchy(nodes, source.getMainHierarchy().getDataNames(),
 				useSubtree);

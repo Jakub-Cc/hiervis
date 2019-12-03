@@ -3,8 +3,6 @@ package pl.pwr.hiervis.hk.ui;
 import java.awt.GridBagLayout;
 import java.awt.Window;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -15,10 +13,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.Logger;
 
-import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Node;
-import pl.pwr.hiervis.HierarchyVisualizer;
-import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.hk.HKPlusPlusScheaduler;
@@ -26,11 +21,11 @@ import pl.pwr.hiervis.util.ui.GridBagConstraintsBuilder;
 
 @SuppressWarnings("serial")
 public class HKOptionsPanel extends JPanel {
-	private Logger logger = null;
-	private HVContext context;
-
-	private LoadedHierarchy hierarchy;
-	private Node node;
+	private transient Logger logger = null;
+	private transient HVContext context;
+	private transient LoadedHierarchy hierarchy;
+	private transient Node node;
+	private transient ActionListener actionListener;
 
 	private MultiIntField txtClusters = null;
 	private MultiIntField txtIterations = null;
@@ -44,10 +39,7 @@ public class HKOptionsPanel extends JPanel {
 	private JCheckBox cboxDiagonalMatrix = null;
 	private JCheckBox cboxNoStaticCenter = null;
 	private JCheckBox cboxGenerateImages = null;
-
 	private JCheckBox cboxVerbose = null;
-
-	private ActionListener actionListener;
 
 	public HKOptionsPanel(HVContext context, Node node, Logger logger, ActionListener actionListener) {
 		this.context = context;
@@ -148,22 +140,22 @@ public class HKOptionsPanel extends JPanel {
 		add(cboxVerbose, builder.insets(5).anchorCenter().fill().position(1, 12).build());
 	}
 
-	public void setupDefaultValues(HVConfig cfg) {
+	public void setupDefaultValues() {
 		cboxTrueClass.setEnabled(hierarchy.options.hasTrueClassAttribute);
 		cboxInstanceNames.setEnabled(hierarchy.options.hasInstanceNameAttribute);
-		txtClusters.setText("" + hierarchy.options.HkClusters);
-		txtIterations.setText("" + hierarchy.options.HkIterations);
-		txtRepeats.setText("" + hierarchy.options.HkRepetitions);
-		txtDendrogram.setText("" + hierarchy.options.HkDendrogramHeight);
-		txtMaxNodes.setText("" + hierarchy.options.HkMaxNodes);
-		txtEpsilon.setText("" + hierarchy.options.HkEpsilon);
-		txtLittleVal.setText("" + hierarchy.options.HkLittleValue);
-		cboxTrueClass.setSelected(hierarchy.options.useTrueClassAtribute);
-		cboxInstanceNames.setSelected(hierarchy.options.useInstanceNameAttribute);
-		cboxDiagonalMatrix.setSelected(hierarchy.options.useHkWithDiagonalMatrix);
-		cboxNoStaticCenter.setSelected(hierarchy.options.useHkNoStaticCenter);
-		cboxGenerateImages.setSelected(hierarchy.options.useHkGenerateImages);
-		cboxVerbose.setSelected(hierarchy.options.useHkVerbose);
+		txtClusters.setText("" + hierarchy.options.getHkClusters());
+		txtIterations.setText("" + hierarchy.options.getHkIterations());
+		txtRepeats.setText("" + hierarchy.options.getHkRepetitions());
+		txtDendrogram.setText("" + hierarchy.options.getHkDendrogramHeight());
+		txtMaxNodes.setText("" + hierarchy.options.getHkMaxNodes());
+		txtEpsilon.setText("" + hierarchy.options.getHkEpsilon());
+		txtLittleVal.setText("" + hierarchy.options.getHkLittleValue());
+		cboxTrueClass.setSelected(hierarchy.options.isUseTrueClassAtribute());
+		cboxInstanceNames.setSelected(hierarchy.options.isUseInstanceNameAttribute());
+		cboxDiagonalMatrix.setSelected(hierarchy.options.isUseHkWithDiagonalMatrix());
+		cboxNoStaticCenter.setSelected(hierarchy.options.isUseHkNoStaticCenter());
+		cboxGenerateImages.setSelected(hierarchy.options.isUseHkGenerateImages());
+		cboxVerbose.setSelected(hierarchy.options.isUseHkVerbose());
 	}
 
 	public void setCarret() {
@@ -200,7 +192,7 @@ public class HKOptionsPanel extends JPanel {
 		boolean hkGenerateImages = cboxGenerateImages.isSelected();
 		boolean hkVerbose = cboxVerbose.isSelected();
 		Window owner = window == null ? SwingUtilities.getWindowAncestor(this) : window;
-		LoadedHierarchy hierarchy = context.getHierarchy();
+		LoadedHierarchy contextHierarchy = context.getHierarchy();
 
 		if (clustersList.isEmpty() || iterationsList.isEmpty() || repeatsList.isEmpty()
 				|| dendrogramHeightList.isEmpty() || maxNodesList.isEmpty() || epsilonList.isEmpty()
@@ -215,38 +207,12 @@ public class HKOptionsPanel extends JPanel {
 							for (int epsilon : epsilonList)
 								for (int littleValue : littleValList) {
 									logger.debug("scheadule loop");
-									HKPlusPlusScheaduler.getHKPlusPlusScheaduler().addToQue(hierarchy, node, owner,
-											trueClassAtribute, instanceNameAttribute, hkWithDiagonalMatrix,
+									HKPlusPlusScheaduler.getHKPlusPlusScheaduler().addToQue(contextHierarchy, node,
+											owner, trueClassAtribute, instanceNameAttribute, hkWithDiagonalMatrix,
 											hkNoStaticCenter, hkGenerateImages, epsilon, littleValue, clusters,
 											iterations, repeats, dendrogramHeight, maxNodes, hkVerbose);
 								}
 		return true;
 	}
 
-	// ---------------------------------------------------------------------------------------------
-	// Helper methods
-
-	private String getParameterString(HVConfig cfg) {
-		int maxNodes = cfg.getHkMaxNodes();
-		String maxNodesStr = maxNodes < 0 ? "MAX_INT" : ("" + maxNodes);
-
-		return String.format("%s / -k %s / -n %s / -r %s / -s %s / -e %s / -l %s / -w %s%s", node.getId(),
-				cfg.getHkClusters(), cfg.getHkIterations(), cfg.getHkRepetitions(), cfg.getHkDendrogramHeight(),
-				cfg.getHkEpsilon(), cfg.getHkLittleValue(), maxNodesStr, cfg.isHkWithDiagonalMatrix() ? " / DM" : "");
-	}
-
-	// ---------------------------------------------------------------------------------------------
-	// Listeners
-
-	private void openInNewInstance(HVConfig cfg, LoadedHierarchy hierarchy) throws IOException {
-		File tmp = File.createTempFile("hv-h-", ".tmp.csv");
-		logger.trace("Saving merged hierarchy to: " + tmp.getAbsolutePath());
-		HierarchyUtils.save(tmp.getAbsolutePath(), hierarchy.getMainHierarchy(), true, cfg.isHkWithTrueClass(),
-				cfg.isHkWithInstanceNames(), true);
-
-		// TODO: Check if the selection was an internal node or leaf node, and decide
-		// where to load the new hierarchy based on that
-		HierarchyVisualizer.spawnNewInstance(getParameterString(cfg), tmp, cboxTrueClass.isSelected(),
-				cboxInstanceNames.isSelected());
-	}
 }

@@ -19,11 +19,11 @@ public class HKPlusPlusScheaduler {
 
 	private Logger logger = null;
 	private HKPlusPlusWrapper curentWraper;
-	private List<HKPlusPlusParameter> Que;
+	private List<HKPlusPlusParameter> que;
 	private static HKPlusPlusScheaduler hkPlusPlusScheaduler;
 
 	private HKPlusPlusScheaduler() {
-		Que = new ArrayList<HKPlusPlusParameter>();
+		que = new ArrayList<>();
 		curentWraper = null;
 		logger = LogManager.getLogger(HKPlusPlusScheaduler.class);
 	}
@@ -40,7 +40,7 @@ public class HKPlusPlusScheaduler {
 			int epsilon, int littleValue, int clusters, int iterations, int repeats, int dendrogramSize,
 			int maxNodeCount, boolean verbose) {
 
-		Que.add(new HKPlusPlusParameter(hierarchy, node, owner, trueClassAttribute, instanceNames, diagonalMatrix,
+		que.add(new HKPlusPlusParameter(hierarchy, node, owner, trueClassAttribute, instanceNames, diagonalMatrix,
 				disableStaticCenter, generateImages, epsilon, littleValue, clusters, iterations, repeats,
 				dendrogramSize, maxNodeCount, verbose));
 
@@ -48,10 +48,10 @@ public class HKPlusPlusScheaduler {
 	}
 
 	private void schaduleNext() {
-		if (curentWraper != null || Que.isEmpty())
+		if (curentWraper != null || que.isEmpty())
 			return;
 
-		HKPlusPlusParameter pPPar = Que.remove(0);
+		HKPlusPlusParameter pPPar = que.remove(0);
 		pPPar.saveSettingsToConfig();
 		pPPar.saveParrameterToHierarchy();
 
@@ -62,8 +62,8 @@ public class HKPlusPlusScheaduler {
 			wrapper.subprocessAborted.addListener(this::onSubprocessAborted);
 
 			logger.trace("Preparing input file...");
-			wrapper.prepareInputFile(pPPar.hierarchy.getMainHierarchy(), pPPar.node, pPPar.trueClassAttribute,
-					pPPar.instanceNames);
+			wrapper.prepareInputFile(pPPar.getHierarchy().getMainHierarchy(), pPPar.getNode(), pPPar.isTrueClassAttribute(),
+					pPPar.isInstanceNames());
 
 			logger.trace("Starting...");
 			wrapper.start(pPPar);
@@ -73,7 +73,7 @@ public class HKPlusPlusScheaduler {
 		}
 	}
 
-	private void onSubprocessAborted(HKPlusPlusWrapper wrapper) {
+	private void onSubprocessAborted(@SuppressWarnings("unused") HKPlusPlusWrapper wrapper) {
 		logger.trace("Aborted.");
 
 		logger.debug(curentWraper);
@@ -95,15 +95,15 @@ public class HKPlusPlusScheaduler {
 				LoadedHierarchy outputHierarchy = wrapper.getOutputHierarchy(cfg.isHkWithTrueClass(),
 						cfg.isHkWithInstanceNames(), false);
 
-				LoadedHierarchy finalHierarchy = LoadedHierarchyUtils.merge(outputHierarchy, pPPar.hierarchy,
-						pPPar.node.getId());
+				LoadedHierarchy finalHierarchy = LoadedHierarchyUtils.merge(outputHierarchy, pPPar.getHierarchy(),
+						pPPar.getNode().getId());
 				HVContext.getContext().loadHierarchy(getParameterString(pPPar), finalHierarchy);
-			} catch (Throwable ex) {
+			} catch (IOException ex) {
 				logger.error("Subprocess finished successfully, but failed during processing: ", ex);
-				ex.printStackTrace();
+				logger.error(ex.getStackTrace());
 			}
 		} else {
-			logger.error("Failed! Error code: " + exitCode);
+			logger.error("Failed! Error code: {}", exitCode);
 		}
 
 		curentWraper = null;
@@ -111,11 +111,11 @@ public class HKPlusPlusScheaduler {
 	}
 
 	private String getParameterString(HKPlusPlusParameter pPPar) {
-		int maxNodes = pPPar.maxNodeCount;
+		int maxNodes = pPPar.getMaxNodeCount();
 		String maxNodesStr = maxNodes < 0 ? "MAX_INT" : ("" + maxNodes);
 
-		return String.format("%s / -k %s / -n %s / -r %s / -s %s / -e %s / -l %s / -w %s%s", pPPar.node.getId(),
-				pPPar.clusters, pPPar.iterations, pPPar.iterations, pPPar.dendrogramSize, pPPar.epsilon,
-				pPPar.littleValue, maxNodesStr, pPPar.diagonalMatrix ? " / DM" : "");
+		return String.format("%s / -k %s / -n %s / -r %s / -s %s / -e %s / -l %s / -w %s%s", pPPar.getNode().getId(),
+				pPPar.getClusters(), pPPar.getIterations(), pPPar.getIterations(), pPPar.getDendrogramSize(), pPPar.getEpsilon(),
+				pPPar.getLittleValue(), maxNodesStr, pPPar.isDiagonalMatrix() ? " / DM" : "");
 	}
 }
