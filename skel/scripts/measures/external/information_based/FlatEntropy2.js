@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var FlatEntropy2 = Java.type( 'external_measures.information_based.FlatEntropy2' );
+	var FlatEntropy2 = Java.type( 'hierarchy_measures.external_measures.information_based.FlatEntropy2' );
 
 	// Create and return the result holder object
 	var measureData = {};

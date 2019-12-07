@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var AvgPathLength = Java.type( 'internal_measures.statistics.AvgPathLength' );
+	var AvgPathLength = Java.type( 'hierarchy_measures.internal_measures.statistics.AvgPathLength' );
 
 	// Create and return the result holder object
 	var measureData = {};

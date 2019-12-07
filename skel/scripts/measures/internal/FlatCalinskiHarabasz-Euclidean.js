@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var FlatCalinskiHarabasz = Java.type( 'internal_measures.FlatCalinskiHarabasz' );
-	var Euclidean = Java.type( 'distance_measures.Euclidean' );
+	var FlatCalinskiHarabasz = Java.type( 'hierarchy_measures.internal_measures.FlatCalinskiHarabasz' );
+	var Euclidean = Java.type( 'hierarchy_measures.distance_measures.Euclidean' );
 
 	// Create and return the result holder object
 	var measureData = {};

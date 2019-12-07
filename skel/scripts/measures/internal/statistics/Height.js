@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var Height = Java.type( 'internal_measures.statistics.Height' );
+	var Height = Java.type( 'hierarchy_measures.internal_measures.statistics.Height' );
 
 	// Create and return the result holder object
 	var measureData = {};

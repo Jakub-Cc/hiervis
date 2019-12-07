@@ -3,7 +3,7 @@ package pl.pwr.hiervis.measures;
 import java.util.function.Function;
 
 import basic_hierarchy.interfaces.Hierarchy;
-import interfaces.QualityMeasure;
+import hierarchy_measures.interfaces.QualityMeasure;
 
 /**
  * A wrapper object around the various measures that can be computed for a

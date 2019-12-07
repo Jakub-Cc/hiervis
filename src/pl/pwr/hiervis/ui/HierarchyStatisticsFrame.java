@@ -54,7 +54,7 @@ import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.interfaces.Node;
-import internal_measures.statistics.AvgWithStdev;
+import hierarchy_measures.internal_measures.statistics.AvgWithStdev;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;

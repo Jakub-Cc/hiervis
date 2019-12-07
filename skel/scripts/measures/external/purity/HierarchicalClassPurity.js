@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var HierarchicalClassPurity = Java.type( 'external_measures.purity.HierarchicalClassPurity' );
+	var HierarchicalClassPurity = Java.type( 'hierarchy_measures.external_measures.purity.HierarchicalClassPurity' );
 
 	// Create and return the result holder object
 	var measureData = {};

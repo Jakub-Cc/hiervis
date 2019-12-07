@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var InstancesPerLevel = Java.type( 'internal_measures.statistics.histogram.InstancesPerLevel' );
+	var InstancesPerLevel = Java.type( 'hierarchy_measures.internal_measures.statistics.histogram.InstancesPerLevel' );
 
 	// Create and return the result holder object
 	var measureData = {};

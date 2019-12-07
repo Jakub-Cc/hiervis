@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var ChildPerNodePerLevel = Java.type( 'internal_measures.statistics.histogram.ChildPerNodePerLevel' );
+	var ChildPerNodePerLevel = Java.type( 'hierarchy_measures.internal_measures.statistics.histogram.ChildPerNodePerLevel' );
 
 	// Create and return the result holder object
 	var measureData = {};

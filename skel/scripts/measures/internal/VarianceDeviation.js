@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var VarianceDeviation = Java.type( 'internal_measures.VarianceDeviation' );
+	var VarianceDeviation = Java.type( 'hierarchy_measures.internal_measures.VarianceDeviation' );
 
 	// Create and return the result holder object
 	var measureData = {};

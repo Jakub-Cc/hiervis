@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var NumberOfLeaves = Java.type( 'internal_measures.statistics.NumberOfLeaves' );
+	var NumberOfLeaves = Java.type( 'hierarchy_measures.internal_measures.statistics.NumberOfLeaves' );
 
 	// Create and return the result holder object
 	var measureData = {};

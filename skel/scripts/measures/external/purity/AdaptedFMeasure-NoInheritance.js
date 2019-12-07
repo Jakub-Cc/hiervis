@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var AdaptedFmeasure = Java.type( 'external_measures.AdaptedFmeasure' );
+	var AdaptedFmeasure = Java.type( 'hierarchy_measures.external_measures.AdaptedFmeasure' );
 
 	var withInstanceInheritance = false;
 

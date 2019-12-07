@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var FlatInformationGain = Java.type( 'external_measures.information_based.FlatInformationGain' );
-	var FlatEntropy2 = Java.type( 'external_measures.information_based.FlatEntropy2' );
+	var FlatInformationGain = Java.type( 'hierarchy_measures.external_measures.information_based.FlatInformationGain' );
+	var FlatEntropy2 = Java.type( 'hierarchy_measures.external_measures.information_based.FlatEntropy2' );
 
 	var logBase = 2;
 

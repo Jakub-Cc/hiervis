@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var FlatWithinBetweenIndex = Java.type( 'internal_measures.FlatWithinBetweenIndex' );
-	var Euclidean = Java.type( 'distance_measures.Euclidean' );
+	var FlatWithinBetweenIndex = Java.type( 'hierarchy_measures.internal_measures.FlatWithinBetweenIndex' );
+	var Euclidean = Java.type( 'hierarchy_measures.distance_measures.Euclidean' );
 
 	// Create and return the result holder object
 	var measureData = {};

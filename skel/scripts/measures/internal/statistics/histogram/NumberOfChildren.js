@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var HistogramOfNumberOfChildren = Java.type( 'internal_measures.statistics.histogram.HistogramOfNumberOfChildren' );
+	var HistogramOfNumberOfChildren = Java.type( 'hierarchy_measures.internal_measures.statistics.histogram.HistogramOfNumberOfChildren' );
 
 	// Create and return the result holder object
 	var measureData = {};

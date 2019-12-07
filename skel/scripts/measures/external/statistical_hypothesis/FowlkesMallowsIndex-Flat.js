@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var FowlkesMallowsIndex = Java.type( 'external_measures.statistical_hypothesis.FowlkesMallowsIndex' );
-	var FlatHypotheses = Java.type( 'external_measures.statistical_hypothesis.FlatHypotheses' );
+	var FowlkesMallowsIndex = Java.type( 'hierarchy_measures.external_measures.statistical_hypothesis.FowlkesMallowsIndex' );
+	var FlatHypotheses = Java.type( 'hierarchy_measures.external_measures.statistical_hypothesis.FlatHypotheses' );
 
 	// Create and return the result holder object
 	var measureData = {};

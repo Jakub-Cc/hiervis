@@ -64,7 +64,7 @@ public class JavascriptMeasureTaskFactory implements MeasureTaskFactory {
 				}
 			});
 		} catch (IOException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -76,8 +76,9 @@ public class JavascriptMeasureTaskFactory implements MeasureTaskFactory {
 	 * @return whether the specified class can be loaded by the script
 	 */
 	private static boolean isClassAccessibleFromScript(String classPath) {
-		return (classPath.startsWith("internal_measures.") || classPath.startsWith("external_measures.")
-				|| classPath.startsWith("distance_measures."));
+		return (classPath.startsWith("hierarchy_measures.internal_measures.")
+				|| classPath.startsWith("hierarchy_measures.external_measures.")
+				|| classPath.startsWith("hierarchy_measures.distance_measures."));
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var RandIndex = Java.type( 'external_measures.statistical_hypothesis.RandIndex' );
-	var FlatHypotheses = Java.type( 'external_measures.statistical_hypothesis.FlatHypotheses' );
+	var RandIndex = Java.type( 'hierarchy_measures.external_measures.statistical_hypothesis.RandIndex' );
+	var FlatHypotheses = Java.type( 'hierarchy_measures.external_measures.statistical_hypothesis.FlatHypotheses' );
 
 	// Create and return the result holder object
 	var measureData = {};

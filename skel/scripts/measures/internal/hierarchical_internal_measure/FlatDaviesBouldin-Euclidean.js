@@ -1,8 +1,8 @@
 function() {
 	// Load required classes
-	var HierarchicalInternalMeasure = Java.type( 'internal_measures.HierarchicalInternalMeasure' );
-	var FlatDaviesBouldin = Java.type( 'internal_measures.FlatDaviesBouldin' );
-	var Euclidean = Java.type( 'distance_measures.Euclidean' );
+	var HierarchicalInternalMeasure = Java.type( 'hierarchy_measures.internal_measures.HierarchicalInternalMeasure' );
+	var FlatDaviesBouldin = Java.type( 'hierarchy_measures.internal_measures.FlatDaviesBouldin' );
+	var Euclidean = Java.type( 'hierarchy_measures.distance_measures.Euclidean' );
 
 	// Initialize the measure object
 	var qualityMeasure = new FlatDaviesBouldin( new Euclidean() );

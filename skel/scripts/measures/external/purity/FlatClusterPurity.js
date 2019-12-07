@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var FlatClusterPurity = Java.type( 'external_measures.purity.FlatClusterPurity' );
+	var FlatClusterPurity = Java.type( 'hierarchy_measures.external_measures.purity.FlatClusterPurity' );
 
 	// Create and return the result holder object
 	var measureData = {};

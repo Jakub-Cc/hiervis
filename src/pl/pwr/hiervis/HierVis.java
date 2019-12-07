@@ -116,7 +116,7 @@ public final class HierVis {
 			context.getMeasureManager().loadMeasureFiles(Paths.get("scripts/measures"));
 			/*
 			 * sciezka do skryptow zmienia sie gdy budujemy przez ant builda
-			 * path-"skel/scripts/measures"
+			 * path-"skel/scripts/measures" Ant path- "scripts/measures"
 			 */
 
 		} catch (IOException e) {

@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var FlatDunn1 = Java.type( 'internal_measures.FlatDunn1' );
-	var Euclidean = Java.type( 'distance_measures.Euclidean' );
+	var FlatDunn1 = Java.type( 'hierarchy_measures.internal_measures.FlatDunn1' );
+	var Euclidean = Java.type( 'hierarchy_measures.distance_measures.Euclidean' );
 
 	// Create and return the result holder object
 	var measureData = {};

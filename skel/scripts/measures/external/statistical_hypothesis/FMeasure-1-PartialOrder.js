@@ -1,7 +1,7 @@
 function() {
 	// Load required classes
-	var Fmeasure = Java.type( 'external_measures.statistical_hypothesis.Fmeasure' );
-	var PartialOrderHypothesis = Java.type( 'external_measures.statistical_hypothesis.PartialOrderHypotheses' );
+	var Fmeasure = Java.type( 'hierarchy_measures.external_measures.statistical_hypothesis.Fmeasure' );
+	var PartialOrderHypothesis = Java.type( 'hierarchy_measures.external_measures.statistical_hypothesis.PartialOrderHypotheses' );
 
 	var beta = 1.0;
 

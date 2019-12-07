@@ -1,8 +1,8 @@
 function() {
 	// Load required classes
-	var HierarchicalInternalMeasure = Java.type( 'internal_measures.HierarchicalInternalMeasure' );
-	var FlatReversedDunn4 = Java.type( 'internal_measures.FlatReversedDunn4' );
-	var Euclidean = Java.type( 'distance_measures.Euclidean' );
+	var HierarchicalInternalMeasure = Java.type( 'hierarchy_measures.internal_measures.HierarchicalInternalMeasure' );
+	var FlatReversedDunn4 = Java.type( 'hierarchy_measures.internal_measures.FlatReversedDunn4' );
+	var Euclidean = Java.type( 'hierarchy_measures.distance_measures.Euclidean' );
 
 	// Initialize the measure object
 	var qualityMeasure = new FlatReversedDunn4( new Euclidean() );

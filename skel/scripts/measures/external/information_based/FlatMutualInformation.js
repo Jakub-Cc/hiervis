@@ -1,6 +1,6 @@
 function() {
 	// Load required classes
-	var FlatMutualInformation = Java.type( 'external_measures.information_based.FlatMutualInformation' );
+	var FlatMutualInformation = Java.type( 'hierarchy_measures.external_measures.information_based.FlatMutualInformation' );
 
 	// Create and return the result holder object
 	var measureData = {};
