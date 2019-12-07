@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters.IntegerType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.IntegerType;
 
 public class PrincipalComponentAnalysis implements FeatureExtraction {
-
+	private static final Logger log = LogManager.getLogger(PrincipalComponentAnalysis.class);
 	public static final String DESCRIPTION = "";
 	public static final String PCA = "PCA";
 	public static final String PRINCIPAL_COMPONENT_ANALYSIS = "Principal Component Analysis";
@@ -85,12 +88,16 @@ public class PrincipalComponentAnalysis implements FeatureExtraction {
 	@Override
 	public DimensionReductionI createInstance(Map<String, Object> parameters) {
 		Integer initialDims = (Integer) parameters.get(getParameters().get(0).getValueName());
+		if (initialDims == null) {
+			log.error("Error when parsing parameters returning default");
+			return this;
+		}
+
 		return new PrincipalComponentAnalysis(initialDims);
 	}
 
 	@Override
 	public Long getMinimumMemmory(int pointsNumber, int dimensionSize) {
-		// TODO Auto-generated method stub
 		return 0l;
 	}
 }

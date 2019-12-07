@@ -8,8 +8,8 @@ import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters;
 import pl.pwr.hiervis.dimension_reduction.methods.core.MatrixUtils;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
 
 public class StarCoordinates implements FeatureExtraction {
 	public static final String DESCRIPTION = "";
@@ -80,7 +80,6 @@ public class StarCoordinates implements FeatureExtraction {
 
 	@Override
 	public Long getMinimumMemmory(int pointsNumber, int dimensionSize) {
-		// TODO Auto-generated method stub
 		return 0l;
 	}
 }

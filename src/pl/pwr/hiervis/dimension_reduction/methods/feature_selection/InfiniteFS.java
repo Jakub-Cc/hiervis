@@ -11,13 +11,19 @@ import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelection;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelectionResult;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters;
 import pl.pwr.hiervis.dimension_reduction.methods.core.MatrixUtils;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.DataType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.DoubleType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
 
 public class InfiniteFS implements FeatureSelection {
 
 	private static final Logger log = LogManager.getLogger(InfiniteFS.class);
 	private Double alpha;
+
+	public static final String NAME = "Infinite FS";
+	public static final String SIMPLE_NAME = "InfFS";
+	public static final String DESCRIPTION = "Infinite FS Description";
 
 	public InfiniteFS(double alpha) {
 		this.alpha = alpha;
@@ -29,22 +35,21 @@ public class InfiniteFS implements FeatureSelection {
 
 	@Override
 	public String getName() {
-		return "Infinite FS";
+		return NAME;
 	}
 
 	@Override
 	public String getSimpleName() {
-		return "InfFS";
+		return SIMPLE_NAME;
 	}
 
 	@Override
 	public String getDescription() {
-		return "Infinite FS description";
+		return DESCRIPTION;
 	}
 
 	@Override
 	public Long getMinimumMemmory(int pointsNumber, int dimensionSize) {
-		// TODO calculate real memory requirements
 		return 0l;
 	}
 
@@ -92,6 +97,10 @@ public class InfiniteFS implements FeatureSelection {
 	@Override
 	public FeatureSelection createInstance(Map<String, Object> parameters) {
 		Double newAlpha = (Double) parameters.get(getParameters().get(0).getValueName());
+		if (newAlpha == null) {
+			log.error("Error when parsing parameters returning default");
+			return this;
+		}
 		return new InfiniteFS(newAlpha);
 	}
 

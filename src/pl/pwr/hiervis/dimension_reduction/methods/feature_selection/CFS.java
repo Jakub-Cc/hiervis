@@ -11,24 +11,28 @@ import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelection;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelectionResult;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters;
 import pl.pwr.hiervis.dimension_reduction.methods.core.MatrixUtils;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
 
 public class CFS implements FeatureSelection {
 
+	public static final String NAME = "CFS";
+	public static final String SIMPLE_NAME = "CFS";
+	public static final String DESCRIPTION = "CFS";
+
 	@Override
 	public String getName() {
-		return "CFS";
+		return NAME;
 	}
 
 	@Override
 	public String getSimpleName() {
-		return "CFS";
+		return SIMPLE_NAME;
 	}
 
 	@Override
 	public String getDescription() {
-		return "CFS";
+		return DESCRIPTION;
 	}
 
 	@Override

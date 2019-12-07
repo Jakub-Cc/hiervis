@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.jujutsu.tsne.TSneConfiguration;
 import com.jujutsu.tsne.barneshut.BHTSne;
 import com.jujutsu.tsne.barneshut.BarnesHutTSne;
@@ -14,12 +17,13 @@ import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters.BooleanType;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters.DoubleType;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters.IntegerType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.BooleanType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.DoubleType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.IntegerType;
 
 public class Tsne implements FeatureExtraction {
+	private static final Logger log = LogManager.getLogger(Tsne.class);
 	public static final String DSCRIPTION = "";
 	public static final String T_SNE_FULL_NAME = "(t-SNE) t-Distributed Stochastic Neighbor Embedding";
 	public static final String T_SNE = "t-SNE";
@@ -148,12 +152,16 @@ public class Tsne implements FeatureExtraction {
 		Boolean usePCa = (Boolean) parameters.get(getParameters().get(4).getValueName());
 		Integer newInitialDims = (Integer) parameters.get(getParameters().get(5).getValueName());
 
+		if (newMaxIter == null || newPerplexity == null || newTetha == null || newParallel == null || usePCa == null
+				|| newInitialDims == null) {
+			log.error("Error when parsing parameters returning default");
+			return this;
+		}
 		return new Tsne(newMaxIter, newPerplexity, newTetha, newParallel, usePCa, newInitialDims, false, true, 2);
 	}
 
 	@Override
 	public Long getMinimumMemmory(int pointsNumber, int dimensionSize) {
-		// TODO Auto-generated method stub
 		return 0l;
 	}
 }

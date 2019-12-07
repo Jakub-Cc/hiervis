@@ -17,10 +17,10 @@ import pl.pwr.hiervis.dimension_reduction.distance_measures.Manhattan;
 import pl.pwr.hiervis.dimension_reduction.distance_measures.Minkowski;
 import pl.pwr.hiervis.dimension_reduction.methods.core.DimensionReductionI;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters.DoubleType;
-import pl.pwr.hiervis.dimension_reduction.methods.core.FunctionParameters.ListType;
 import pl.pwr.hiervis.dimension_reduction.methods.core.MatrixUtils;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.DoubleType;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.ListType;
 
 public class MultidimensionalScaling implements FeatureExtraction {
 	private static final Logger log = LogManager.getLogger(MultidimensionalScaling.class);
@@ -127,6 +127,11 @@ public class MultidimensionalScaling implements FeatureExtraction {
 	@Override
 	public DimensionReductionI createInstance(Map<String, Object> parameters) {
 		DistanceMeasure measure = (DistanceMeasure) parameters.get(getParameters().get(0).getValueName());
+		if (measure == null) {
+			log.error("Error when parsing parameters returning default");
+			return this;
+		}
+
 		if (measure.getClass() == Minkowski.class) {
 			double power = (double) parameters.get(getParameters().get(1).getValueName());
 			measure = new Minkowski(power);
@@ -136,7 +141,6 @@ public class MultidimensionalScaling implements FeatureExtraction {
 
 	@Override
 	public Long getMinimumMemmory(int pointsNumber, int dimensionSize) {
-		// TODO Auto-generated method stub
 		return 0l;
 	}
 }

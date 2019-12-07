@@ -3,6 +3,8 @@ package pl.pwr.hiervis.dimension_reduction.methods.core;
 import java.util.List;
 import java.util.Map;
 
+import pl.pwr.hiervis.dimension_reduction.methods.core.function_parameters.FunctionParameters;
+
 public interface DimensionReductionI {
 
     public String getName();
