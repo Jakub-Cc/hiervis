@@ -1,10 +1,6 @@
 package pl.pwr.hiervis.dimension_reduction;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class VisibleDimensionsKeeper {
-	private static final Logger log = LogManager.getLogger(VisibleDimensionsKeeper.class);
 
 	private boolean[] visibleVerticalDimensions;
 	private boolean[] visibleHorizontalDimensions;
@@ -23,12 +19,10 @@ public class VisibleDimensionsKeeper {
 	}
 
 	public void toggleVisibility(int dim, boolean horizontal, boolean isVisible) {
-		log.debug("{}, {}, {}", dim, horizontal, isVisible);
 		if (horizontal)
 			visibleHorizontalDimensions[dim] = isVisible;
 		else
 			visibleVerticalDimensions[dim] = isVisible;
-
 	}
 
 	public String getString() {

@@ -310,8 +310,6 @@ public class InstanceVisualizationsFrame extends JFrame {
 		updateViewportLayout();
 
 		curentSelectedDimensions = h.getHierarchyWraper().getVisibleDimensions();
-		log.debug(curentSelectedDimensions);
-		log.debug(curentSelectedDimensions.getString());
 		final boolean[] checkedH = curentSelectedDimensions.getVisibleHorizontalDimensions();
 		final boolean[] checkedV = curentSelectedDimensions.getVisibleVerticalDimensions();
 		// Invoke this part later, so that it's executed after all UI-creating code is
