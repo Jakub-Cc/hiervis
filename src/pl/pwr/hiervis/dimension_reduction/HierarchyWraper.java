@@ -3,6 +3,7 @@ package pl.pwr.hiervis.dimension_reduction;
 import java.util.ArrayList;
 import java.util.List;
 
+import basic_hierarchy.common.HierarchyUtils;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelectionResult;
@@ -14,18 +15,25 @@ public class HierarchyWraper {
 	private DimensionReductionManager dimensionReductionManager;
 
 	private List<FeatureSelectionResult>[] featureSelectionResults;
+	private VisibleDimensionsKeeper[] visibleDimensionsKeeper;
+	private int curentSelection;
 
 	public HierarchyWraper(Hierarchy hierarchy) {
 		this.originalHierarchy = hierarchy;
+		curentSelection = 0;
 		this.setHierarchy(hierarchy);
 		this.dimensionReductionManager = new DimensionReductionManager();
 		this.setReducedHierarchy(new Hierarchy[dimensionReductionManager.getSize()]);
 
 		this.featureSelectionResults = new ArrayList[dimensionReductionManager.getSize()];
+
+		this.visibleDimensionsKeeper = new VisibleDimensionsKeeper[reducedHierarchy.length + 1];
+		visibleDimensionsKeeper[0] = new VisibleDimensionsKeeper(HierarchyUtils.getFeatureCount(originalHierarchy));
 	}
 
 	public HierarchyWraper() {
 		setHierarchy(null);
+		curentSelection = -1;
 		originalHierarchy = null;
 		dimensionReductionManager = new DimensionReductionManager();
 		setReducedHierarchy(new Hierarchy[dimensionReductionManager.getSize()]);
@@ -43,9 +51,12 @@ public class HierarchyWraper {
 	public void setHierarchy(int index) {
 		if (index <= 0) {
 			hierarchy = originalHierarchy;
+			curentSelection = 0;
 		} else if (index - 1 < dimensionReductionManager.getSize()) {
 			hierarchy = reducedHierarchy[index - 1];
+			curentSelection = index;
 		}
+
 	}
 
 	public Hierarchy getOriginalHierarchy() {
@@ -84,6 +95,8 @@ public class HierarchyWraper {
 		int index = dimensionReductionManager.getIndex(calculatedDimensionReduction.getDimensionReduction());
 		if (index != -1) {
 			reducedHierarchy[index] = calculatedDimensionReduction.getOutputHierarchy();
+			visibleDimensionsKeeper[index + 1] = new VisibleDimensionsKeeper(
+					HierarchyUtils.getFeatureCount(reducedHierarchy[index]));
 		}
 	}
 
@@ -92,6 +105,7 @@ public class HierarchyWraper {
 		int index = dimensionReductionManager.getIndex(calculatedDimensionReduction.getDimensionReduction());
 		if (index != -1) {
 			featureSelectionResults[index] = calculatedDimensionReduction.getFsResult();
+			visibleDimensionsKeeper[index + 1] = new VisibleDimensionsKeeper(0);
 		}
 	}
 
@@ -110,4 +124,11 @@ public class HierarchyWraper {
 		this.hierarchy = hierarchy;
 	}
 
+	public VisibleDimensionsKeeper[] getVisibleDimensionsKeeper() {
+		return visibleDimensionsKeeper;
+	}
+
+	public VisibleDimensionsKeeper getVisibleDimensions() {
+		return visibleDimensionsKeeper[curentSelection];
+	}
 }

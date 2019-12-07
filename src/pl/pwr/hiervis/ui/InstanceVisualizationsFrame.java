@@ -45,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVConstants;
 import pl.pwr.hiervis.core.HVContext;
+import pl.pwr.hiervis.dimension_reduction.VisibleDimensionsKeeper;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.prefuse.DisplayEx;
@@ -65,11 +66,11 @@ import prefuse.visual.sort.ItemSorter;
 
 @SuppressWarnings("serial")
 public class InstanceVisualizationsFrame extends JFrame {
-	private static final String B = "<b>";
+	private static final String B_TAG = "<b>";
 
-	private static final String CLOSE_B = "</b>";
+	private static final String CLOSE_B_TAG = "</b>";
 
-	private static final String BR = "<br/>";
+	private static final String BR_TAG = "<br/>";
 
 	private static final Logger log = LogManager.getLogger(InstanceVisualizationsFrame.class);
 
@@ -105,6 +106,8 @@ public class InstanceVisualizationsFrame extends JFrame {
 	private JCheckBox cboxAllV;
 	private JPopupMenu displayPopupMenu;
 
+	private transient VisibleDimensionsKeeper curentSelectedDimensions;
+
 	public InstanceVisualizationsFrame(HVContext context, String subtitle) {
 		super("Instance Visualizations Frame" + (subtitle == null ? "" : (" [ " + subtitle + " ]")));
 		this.context = context;
@@ -120,7 +123,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 		context.configChanged.addListener(this::onConfigChanged);
 
 		if (context.isHierarchyDataLoaded()) {
-			recreateUI();
+			recreateUI(context.getHierarchy());
 		}
 
 		VisualizerFrame.createFileDrop(this, log, "csv", file -> context.loadFile(this, file));
@@ -297,18 +300,8 @@ public class InstanceVisualizationsFrame extends JFrame {
 	/**
 	 * Recreates the UI, updating it to match the currently loaded hierarchy's data.
 	 */
-	private void recreateUI() {
+	private void recreateUI(LoadedHierarchy h) {
 		String[] dataNames = HierarchyProcessor.getFeatureNames(context.getHierarchy());
-
-		// Store the previous selections so that we can restore them for the new
-		// hierarchy.
-		final boolean[] checkedH = new boolean[cboxesHorizontal.length];
-		final boolean[] checkedV = new boolean[cboxesVertical.length];
-
-		for (int i = 0; i < checkedH.length; ++i) {
-			checkedH[i] = cboxesHorizontal[i].isSelected();
-			checkedV[i] = cboxesVertical[i].isSelected();
-		}
 
 		recreateCheckboxes(dataNames);
 		recreateLabels(dataNames);
@@ -316,25 +309,29 @@ public class InstanceVisualizationsFrame extends JFrame {
 		recreateViewportLayout(dataNames.length);
 		updateViewportLayout();
 
+		curentSelectedDimensions = h.getHierarchyWraper().getVisibleDimensions();
+		log.debug(curentSelectedDimensions);
+		log.debug(curentSelectedDimensions.getString());
+		final boolean[] checkedH = curentSelectedDimensions.getVisibleHorizontalDimensions();
+		final boolean[] checkedV = curentSelectedDimensions.getVisibleVerticalDimensions();
 		// Invoke this part later, so that it's executed after all UI-creating code is
 		// done running.
-		SwingUtilities.invokeLater(() -> {
-			for (int i = 0; i < cboxesHorizontal.length; ++i) {
-				if (cboxAllH.isSelected()) {
-					cboxesHorizontal[i].setSelected(true);
-				}
-				if (cboxAllV.isSelected()) {
-					cboxesVertical[i].setSelected(true);
-				}
+		SwingUtilities.invokeLater(() -> tickNewBoxes(checkedH, checkedV));
+	}
 
-				if ((!cboxAllH.isSelected() && !cboxAllV.isSelected()) && i < checkedH.length) {
-					if (checkedH[i])
-						cboxesHorizontal[i].setSelected(true);
-					if (checkedV[i])
-						cboxesVertical[i].setSelected(true);
-				}
-			}
-		});
+	private void tickNewBoxes(final boolean[] checkedH, final boolean[] checkedV) {
+		boolean checkedAllH = true;
+		boolean checkedAllV = true;
+
+		for (int i = 0; i < cboxesHorizontal.length; ++i) {
+			cboxesHorizontal[i].setSelected(checkedH[i]);
+			cboxesVertical[i].setSelected(checkedV[i]);
+			checkedAllH &= checkedH[i];
+			checkedAllV &= checkedV[i];
+		}
+		setCheckboxSilent(cboxAllH, checkedAllH);
+		setCheckboxSilent(cboxAllV, checkedAllV);
+
 	}
 
 	private void recreateCheckboxes(String[] dataNames) {
@@ -511,19 +508,24 @@ public class InstanceVisualizationsFrame extends JFrame {
 
 			// Need to manually include insets in size calculation.
 			// For some reason, the grid layout doesn't do it automatically...
-
 			if (horizontal) {
-				Insets insets = layout.getConstraints(cCols.getComponent(i)).insets;
-
-				layout.columnWidths[i] = vis ? visWidth + insets.left + insets.right : 0;
-				layout.columnWeights[i] = vis ? 1.0 : Double.MIN_VALUE;
+				updateLabelLayoutHorizontal(layout, i, vis);
 			} else {
-				Insets insets = layout.getConstraints(cRows.getComponent(i)).insets;
-
-				layout.rowHeights[i] = vis ? visHeight + insets.top + insets.bottom : 0;
-				layout.rowWeights[i] = vis ? 1.0 : Double.MIN_VALUE;
+				updateLabelLayoutVertical(layout, i, vis);
 			}
 		}
+	}
+
+	private void updateLabelLayoutVertical(GridBagLayout layout, int i, boolean vis) {
+		Insets insets = layout.getConstraints(cRows.getComponent(i)).insets;
+		layout.rowHeights[i] = vis ? visHeight + insets.top + insets.bottom : 0;
+		layout.rowWeights[i] = vis ? 1.0 : Double.MIN_VALUE;
+	}
+
+	private void updateLabelLayoutHorizontal(GridBagLayout layout, int i, boolean vis) {
+		Insets insets = layout.getConstraints(cCols.getComponent(i)).insets;
+		layout.columnWidths[i] = vis ? visWidth + insets.left + insets.right : 0;
+		layout.columnWeights[i] = vis ? 1.0 : Double.MIN_VALUE;
 	}
 
 	/**
@@ -653,112 +655,24 @@ public class InstanceVisualizationsFrame extends JFrame {
 		display.setPreferredSize(new Dimension(visWidth, visHeight));
 
 		// Via: http://www.ifs.tuwien.ac.at/~rind/w/doku.php/java/prefuse-scatterplot
-		display.setItemSorter(new ItemSorter() {
-			@Override
-			public int score(VisualItem item) {
-				if (item.isInGroup(HVConstants.INSTANCE_DATA_NAME)) {
-					prefuse.data.Node node = (prefuse.data.Node) item
-							.get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
-					int roleId = node.getInt(HVConstants.PREFUSE_NODE_ROLE_COLUMN_NAME);
-
-					// Sort the nodes so that instances belonging to the currently selected node are
-					// always topmost.
-					// Direct parents next, then indirect parents, then children, then other
-					// unrelated instances.
-					return Integer.MAX_VALUE - roleId;
-				}
-
-				return 0;
-			}
-		});
+		display.setItemSorter(createItemSorter());
 
 		display.addControlListener(new PanControl(true));
 		ZoomScrollControl zoomControl = new ZoomScrollControl();
 		zoomControl.setModifierControl(true);
 		display.addControlListener(zoomControl);
 		display.addMouseWheelListener(new MouseWheelEventBubbler(display, e -> !e.isControlDown() && !e.isAltDown()));
-		display.addControlListener(new CustomToolTipControl(item -> {
-			if (item.isInGroup(HVConstants.INSTANCE_DATA_NAME)) {
-				StringBuilder buf = new StringBuilder();
+		display.addControlListener(createToolTipControl(dimX, dimY));
 
-				buf.append("<html>");
-				if (item.canGetString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME)) {
-					buf.append(B).append(item.getString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME)).append(CLOSE_B)
-							.append(BR);
-				}
+		display.addMouseWheelListener(this::mouseWheelListner);
 
-				prefuse.data.Node node = (prefuse.data.Node) item.get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
-				String assignId = node.getString(HVConstants.PREFUSE_NODE_ID_COLUMN_NAME);
-				buf.append("Assign class: ").append(assignId).append(BR);
-
-				if (item.canGetString(HVConstants.PREFUSE_INSTANCE_TRUENODE_ID_COLUMN_NAME)) {
-					String trueId = item.getString(HVConstants.PREFUSE_INSTANCE_TRUENODE_ID_COLUMN_NAME);
-					buf.append("True class: ").append(trueId).append(BR);
-				}
-
-				String x = cboxesHorizontal[dimX].getText();
-				String y = cboxesHorizontal[dimY].getText();
-				buf.append(x).append(": ").append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimX))
-						.append(BR);
-				buf.append(y).append(": ")
-						.append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimY));
-
-				buf.append("</html>");
-
-				return buf.toString();
-			}
-
-			return null;
-		}));
-
-		display.addMouseWheelListener(e -> {
-			if (e.isAltDown()) {
-				DisplayEx d = (DisplayEx) e.getComponent();
-
-				AffineTransform transform = d.getTransform();
-				AffineTransform transformI = d.getInverseTransform();
-
-				Rectangle2D layoutBounds = HierarchyProcessor.getLayoutBounds(d.getVisualization());
-
-				if (layoutBounds.getX() > 0) {
-					// Un-translate the layout bounds in case we're zoomed in.
-					// We need absolute values to be able to calculate the layout correctly.
-					Point2D tl = new Point2D.Double(layoutBounds.getMinX(), layoutBounds.getMinY());
-					Point2D br = new Point2D.Double(layoutBounds.getMaxX(), layoutBounds.getMaxY());
-					transform.transform(tl, tl);
-					transform.transform(br, br);
-					layoutBounds = new Rectangle2D.Double(tl.getX(), tl.getY(), br.getX() - tl.getX(),
-							br.getY() - tl.getY());
-				}
-
-				// Scale the current layout area by 10%
-				double zoomDelta = 1 - 0.1 * e.getWheelRotation();
-				double newW = layoutBounds.getWidth() * zoomDelta;
-				double newH = layoutBounds.getHeight() * zoomDelta;
-
-				layoutBounds.setFrame(0, 0, newW, newH);
-
-				Point2D focusOld = transformI.transform(e.getPoint(), new Point2D.Double());
-				Point2D focusNew = new Point2D.Double(focusOld.getX() * zoomDelta, focusOld.getY() * zoomDelta);
-				Point2D focusDelta = new Point2D.Double(focusNew.getX() - focusOld.getX(),
-						focusNew.getY() - focusOld.getY());
-
-				transform.translate(-focusDelta.getX(), -focusDelta.getY());
-				Utils.setTransform(d, transform);
-				HierarchyProcessor.updateLayoutBounds(d.getVisualization(), layoutBounds);
-
-				redrawDisplayIfVisible(d);
-			}
-		});
-
+		// Consume alt key releases, so that the display doesn't lose focus (default
+		// behaviour of Alt key on Windows is to switch to menu bar when Alt is pressed,
+		// but this window has no menu bar anyway)
 		display.addKeyListener(new KeyAdapter() {
-
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ALT) {
-					// Consume alt key releases, so that the display doesn't lose focus
-					// (default behaviour of Alt key on Windows is to switch to menu bar when Alt
-					// is pressed, but this window has no menu bar anyway)
 					e.consume();
 				}
 			}
@@ -776,6 +690,102 @@ public class InstanceVisualizationsFrame extends JFrame {
 		Utils.unzoom(display, 0);
 
 		return display;
+	}
+
+	private void mouseWheelListner(MouseWheelEvent e) {
+		if (e.isAltDown()) {
+			DisplayEx d = (DisplayEx) e.getComponent();
+
+			AffineTransform transform = d.getTransform();
+			AffineTransform transformI = d.getInverseTransform();
+
+			Rectangle2D layoutBounds = HierarchyProcessor.getLayoutBounds(d.getVisualization());
+
+			if (layoutBounds.getX() > 0) {
+				// Un-translate the layout bounds in case we're zoomed in.
+				// We need absolute values to be able to calculate the layout correctly.
+				Point2D tl = new Point2D.Double(layoutBounds.getMinX(), layoutBounds.getMinY());
+				Point2D br = new Point2D.Double(layoutBounds.getMaxX(), layoutBounds.getMaxY());
+				transform.transform(tl, tl);
+				transform.transform(br, br);
+				layoutBounds = new Rectangle2D.Double(tl.getX(), tl.getY(), br.getX() - tl.getX(),
+						br.getY() - tl.getY());
+			}
+
+			// Scale the current layout area by 10%
+			double zoomDelta = 1 - 0.1 * e.getWheelRotation();
+			double newW = layoutBounds.getWidth() * zoomDelta;
+			double newH = layoutBounds.getHeight() * zoomDelta;
+
+			layoutBounds.setFrame(0, 0, newW, newH);
+
+			Point2D focusOld = transformI.transform(e.getPoint(), new Point2D.Double());
+			Point2D focusNew = new Point2D.Double(focusOld.getX() * zoomDelta, focusOld.getY() * zoomDelta);
+			Point2D focusDelta = new Point2D.Double(focusNew.getX() - focusOld.getX(),
+					focusNew.getY() - focusOld.getY());
+
+			transform.translate(-focusDelta.getX(), -focusDelta.getY());
+			Utils.setTransform(d, transform);
+			HierarchyProcessor.updateLayoutBounds(d.getVisualization(), layoutBounds);
+
+			redrawDisplayIfVisible(d);
+		}
+	}
+
+	private CustomToolTipControl createToolTipControl(int dimX, int dimY) {
+		return new CustomToolTipControl(item -> {
+			if (item.isInGroup(HVConstants.INSTANCE_DATA_NAME)) {
+				StringBuilder buf = new StringBuilder();
+
+				buf.append("<html>");
+				if (item.canGetString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME)) {
+					buf.append(B_TAG).append(item.getString(HVConstants.PREFUSE_INSTANCE_LABEL_COLUMN_NAME))
+							.append(CLOSE_B_TAG).append(BR_TAG);
+				}
+
+				prefuse.data.Node node = (prefuse.data.Node) item.get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
+				String assignId = node.getString(HVConstants.PREFUSE_NODE_ID_COLUMN_NAME);
+				buf.append("Assign class: ").append(assignId).append(BR_TAG);
+
+				if (item.canGetString(HVConstants.PREFUSE_INSTANCE_TRUENODE_ID_COLUMN_NAME)) {
+					String trueId = item.getString(HVConstants.PREFUSE_INSTANCE_TRUENODE_ID_COLUMN_NAME);
+					buf.append("True class: ").append(trueId).append(BR_TAG);
+				}
+
+				String x = cboxesHorizontal[dimX].getText();
+				String y = cboxesHorizontal[dimY].getText();
+				buf.append(x).append(": ").append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimX))
+						.append(BR_TAG);
+				buf.append(y).append(": ")
+						.append(item.getDouble(HVConstants.PREFUSE_VISUAL_TABLE_COLUMN_OFFSET + dimY));
+
+				buf.append("</html>");
+
+				return buf.toString();
+			}
+
+			return null;
+		});
+	}
+
+	private ItemSorter createItemSorter() {
+		return new ItemSorter() {
+			@Override
+			public int score(VisualItem item) {
+				if (item.isInGroup(HVConstants.INSTANCE_DATA_NAME)) {
+					prefuse.data.Node node = (prefuse.data.Node) item
+							.get(HVConstants.PREFUSE_INSTANCE_NODE_COLUMN_NAME);
+					int roleId = node.getInt(HVConstants.PREFUSE_NODE_ROLE_COLUMN_NAME);
+
+					// Sort the nodes so that instances belonging to the currently selected node are
+					// always topmost.
+					// Direct parents next, then indirect parents, then children, then other
+					// unrelated instances.
+					return Integer.MAX_VALUE - roleId;
+				}
+				return 0;
+			}
+		};
 	}
 
 	private JPopupMenu createDisplayPopupMenu() {
@@ -1020,6 +1030,8 @@ public class InstanceVisualizationsFrame extends JFrame {
 		// Update dimension label visibility & layout
 		Component c = horizontal ? cCols.getComponent(dim) : cRows.getComponent(dim);
 		c.setVisible(horizontal ? cboxesHorizontal[dim].isSelected() : cboxesVertical[dim].isSelected());
+		curentSelectedDimensions.toggleVisibility(dim, horizontal, c.isVisible());
+
 		updateLabelLayout(horizontal);
 	}
 
@@ -1057,7 +1069,7 @@ public class InstanceVisualizationsFrame extends JFrame {
 	}
 
 	private void onHierarchyChanged(LoadedHierarchy h) {
-		recreateUI();
+		recreateUI(h);
 
 		cboxAllH.setEnabled(true);
 		cboxAllV.setEnabled(true);
