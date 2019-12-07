@@ -1,6 +1,7 @@
 package pl.pwr.hiervis.hierarchy;
 
 import static org.junit.Assert.fail;
+import static pl.pwr.hiervis.TestConst.NOT_YET_IMPLEMENTED;
 
 import org.junit.Test;
 
@@ -8,87 +9,87 @@ public class HierarchyProcessorTest {
 
 	@Test
 	public void testBuildHierarchyTree() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testUpdateNodeRoles() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testUpdateTreeNodeRoles() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testCreateTreeVisualizationHVContext() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testCreateTreeVisualizationHVContextString() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testLayoutVisualization() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testCreateInstanceTable() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetFeatureNames() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testFindGroup() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testCreateInstanceVisualization() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testUpdateInstanceVisualizationColors() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testUpdateLayoutBounds() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetLayoutBounds() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testDisposeHierarchyVis() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testDisposeInstanceVis() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testDisposeHistogramVis() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testDisposeAction() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 }

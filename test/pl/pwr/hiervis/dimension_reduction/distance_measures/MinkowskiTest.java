@@ -36,7 +36,7 @@ public class MinkowskiTest {
 		assertEquals(distance, 1, epsilon);
 	}
 
-	@Test(expected = java.lang.AssertionError.class)
+	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void testGetDistanceThrowsAssertionError() {
 		distanceMeasure.getDistance(new double[] { 1, 1, 2 }, new double[] { 1, 2 });
 	}

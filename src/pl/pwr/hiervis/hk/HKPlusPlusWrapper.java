@@ -40,7 +40,7 @@ public class HKPlusPlusWrapper {
 	private InputStreamObserverThread outObserver;
 	private OperationProgressFrame waitFrame;
 	private HVConfig cfg;
-	public HKPlusPlusParameter plusParameter;
+	private HKPlusPlusParameter plusParameter;
 
 	public HKPlusPlusWrapper(HVConfig srcCfg) {
 		cfg = srcCfg.copy();
@@ -50,8 +50,9 @@ public class HKPlusPlusWrapper {
 	public void start(HKPlusPlusParameter pPPar) throws IOException {
 		plusParameter = pPPar;
 		start(pPPar.getOwner(), pPPar.isTrueClassAttribute(), pPPar.isInstanceNames(), pPPar.isDiagonalMatrix(),
-				pPPar.isDisableStaticCenter(), pPPar.isGenerateImages(), pPPar.getEpsilon(), pPPar.getLittleValue(), pPPar.getClusters(),
-				pPPar.getIterations(), pPPar.getRepeats(), pPPar.getDendrogramSize(), pPPar.getMaxNodeCount(), pPPar.isVerbose());
+				pPPar.isDisableStaticCenter(), pPPar.isGenerateImages(), pPPar.getEpsilon(), pPPar.getLittleValue(),
+				pPPar.getClusters(), pPPar.getIterations(), pPPar.getRepeats(), pPPar.getDendrogramSize(),
+				pPPar.getMaxNodeCount(), pPPar.isVerbose());
 
 	}
 
@@ -320,4 +321,5 @@ public class HKPlusPlusWrapper {
 
 		return args;
 	}
+
 }

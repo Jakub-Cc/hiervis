@@ -327,6 +327,21 @@ public class MatrixUtils {
 		return sum;
 	}
 
+	private static double[] sumOfElementsSecondDim(double[][] matrix) {
+		int firstDimSize = matrix.length;
+		int secondDimSize = matrix[0].length;
+
+		double[] sum = new double[secondDimSize];
+
+		for (int i = 0; i < secondDimSize; i++) {
+			sum[i] = 0;
+			for (int j = 0; j < firstDimSize; j++) {
+				sum[i] += matrix[j][i];
+			}
+		}
+		return sum;
+	}
+
 	public static int[] sortDescendant(double[] vector) {
 		int[] result = new int[vector.length];
 
@@ -377,43 +392,11 @@ public class MatrixUtils {
 		return result;
 	}
 
-	public static void printMatrix(double[][] matrix) {
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				System.out.printf("%.4f", matrix[i][j]);
-				System.out.print(" ");
-			}
-			System.out.println();
-		}
-	}
-
-	public static void printMatrix(double[] matrix) {
-		for (int i = 0; i < matrix.length; i++) {
-			System.out.print(matrix[i] + " ");
-		}
-		System.out.println();
-	}
-
 	public static double[][] inverse(double[][] matrix) {
 		RealMatrix realMatrix = org.apache.commons.math3.linear.MatrixUtils.createRealMatrix(matrix);
 		RealMatrix inversedMatrix = org.apache.commons.math3.linear.MatrixUtils.inverse(realMatrix);
 
 		return inversedMatrix.getData();
-	}
-
-	private static double[] sumOfElementsSecondDim(double[][] matrix) {
-		int firstDimSize = matrix.length;
-		int secondDimSize = matrix[0].length;
-
-		double[] sum = new double[secondDimSize];
-
-		for (int i = 0; i < secondDimSize; i++) {
-			sum[i] = 0;
-			for (int j = 0; j < firstDimSize; j++) {
-				sum[i] += matrix[j][i];
-			}
-		}
-		return sum;
 	}
 
 	public static void replaceUndef(double[][] matrix, double valueToPut) {
@@ -528,7 +511,7 @@ public class MatrixUtils {
 		return standardDeviation;
 	}
 
-	public static double[] standardDeviationSecondDim(double[][] matrix) {
+	private static double[] standardDeviationSecondDim(double[][] matrix) {
 		int firstDimSize = matrix.length;
 		int secondDimSize = matrix[0].length;
 

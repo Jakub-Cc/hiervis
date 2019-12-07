@@ -1,6 +1,7 @@
 package pl.pwr.hiervis.measures;
 
 import static org.junit.Assert.fail;
+import static pl.pwr.hiervis.TestConst.NOT_YET_IMPLEMENTED;
 
 import org.junit.Test;
 
@@ -8,37 +9,37 @@ public class MeasureComputeThreadTest {
 
 	@Test
 	public void testRun() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testMeasureComputeThread() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testIsMeasurePending() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testPostTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testRemoveTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testClearPendingTasks() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testShutdown() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 }

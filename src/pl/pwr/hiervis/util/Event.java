@@ -117,7 +117,7 @@ public class Event<T> {
 		try {
 			listener.accept(args);
 		} catch (RuntimeException e) {
-			log.error(e);
+			log.error(e.toString(), e);
 		}
 	}
 }

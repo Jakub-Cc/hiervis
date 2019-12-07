@@ -1,8 +1,11 @@
 package pl.pwr.hiervis.dimension_reduction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,8 +13,12 @@ import org.junit.Test;
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.test.TestCommon;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
+import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelection;
+import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureSelectionResult;
 import pl.pwr.hiervis.dimension_reduction.methods.feature_extraction.MultidimensionalScaling;
 import pl.pwr.hiervis.dimension_reduction.methods.feature_extraction.StarCoordinates;
+import pl.pwr.hiervis.dimension_reduction.methods.feature_extraction.Tsne;
+import pl.pwr.hiervis.dimension_reduction.methods.feature_selection.InfiniteFS;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class HierarchyWraperTest {
@@ -107,7 +114,58 @@ public class HierarchyWraperTest {
 		CalculatedDimensionReduction calculatedDimensionReduction = new CalculatedDimensionReduction(loadedHierarchy,
 				dimensionReduction, hierarchy, null);
 		hierachyWraper.addReducedHierarchy(calculatedDimensionReduction);
-		assertNotSame(null, hierachyWraper.getHierarchyWithoutChange(4));
+		assertNotSame(null, hierachyWraper.getHierarchyWithoutChange(0));
 	}
 
+	@Test
+	public void testSetHierarchyInt() {
+		hierachyWraper.setHierarchy(0);
+		assertEquals(hierarchy, hierachyWraper.getHierarchy());
+		hierachyWraper.setHierarchy(1);
+		assertEquals(null, hierachyWraper.getHierarchy());
+	}
+
+	@Test
+	public void testGetReducedHierarchyFeatureExtraction() {
+		FeatureExtraction f = new Tsne();
+		assertEquals(null, hierachyWraper.getReducedHierarchy(f));
+	}
+
+	@Test
+	public void testAddFeatureSelectionResult() {
+		LoadedHierarchy loadedHierarchy = new LoadedHierarchy(hierarchy,
+				new LoadedHierarchy.Options(false, false, false, false, false));
+		FeatureSelection infFs = new InfiniteFS(0.5);
+		List<FeatureSelectionResult> list = infFs.selectFeatures(hierarchy);
+		CalculatedDimensionReduction calculatedDimensionReduction = new CalculatedDimensionReduction(loadedHierarchy,
+				infFs, hierarchy, list);
+
+		hierachyWraper.addFeatureSelectionResult(calculatedDimensionReduction);
+		assertEquals(list, hierachyWraper.getFSResult(5));
+		assertEquals(null, hierachyWraper.getFSResult(-5));
+		assertEquals(null, hierachyWraper.getFSResult(500));
+	}
+
+	@Test
+	public void testGetHierarchy() {
+		assertEquals(hierarchy, hierachyWraper.getHierarchy());
+	}
+
+	@Test
+	public void testSetHierarchyHierarchy() {
+		assertEquals(hierarchy, hierachyWraper.getHierarchy());
+		hierachyWraper.setHierarchy(null);
+		assertEquals(null, hierachyWraper.getHierarchy());
+	}
+
+	@Test
+	public void testGetVisibleDimensionsKeeper() {
+		assertNotNull(hierachyWraper.getVisibleDimensionsKeeper());
+		assertEquals(8, hierachyWraper.getVisibleDimensionsKeeper().length);
+	}
+
+	@Test
+	public void testGetVisibleDimensions() {
+		assertNotNull(hierachyWraper.getVisibleDimensions());
+	}
 }

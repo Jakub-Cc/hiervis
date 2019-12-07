@@ -1,124 +1,109 @@
 package pl.pwr.hiervis.core;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import basic_hierarchy.interfaces.Hierarchy;
+import basic_hierarchy.test.TestCommon;
+import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class HVContextTest {
 
-	@Test
-	public void testHVContext() {
-		fail("Not yet implemented");
+	HVContext context;
+	Hierarchy hierarchy;
+	LoadedHierarchy loadedHierarchy;
+
+	@Before
+	public void init() {
+		context = HVContext.getContext();
+		hierarchy = TestCommon.getFourGroupsHierarchy();
+		loadedHierarchy = new LoadedHierarchy(hierarchy,
+				new LoadedHierarchy.Options(false, false, false, false, false));
 	}
 
 	@Test
-	public void testCreateGUI() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsHierarchyDataLoaded() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetConfig() {
-		fail("Not yet implemented");
+	public void testGetContext() {
+		assertNotNull(context);
 	}
 
 	@Test
 	public void testGetConfig() {
-		fail("Not yet implemented");
+		HVConfig currentConfig = context.getConfig();
+		assertNotNull(currentConfig);
+		context.setConfig(null);
+		assertNotNull(context.getConfig());
+		context.setConfig(new HVConfig());
+		assertEquals(currentConfig, context.getConfig());
+		HVConfig nwConfig = new HVConfig();
+		nwConfig.setPointSize(100);
+		context.setConfig(nwConfig);
+		assertNotEquals(currentConfig, context.getConfig());
 	}
 
 	@Test
 	public void testGetMeasureManager() {
-		fail("Not yet implemented");
+		assertNotNull(context.getMeasureManager());
 	}
 
 	@Test
 	public void testSetHierarchy() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHierarchy() {
-		fail("Not yet implemented");
+		context.setHierarchy(loadedHierarchy);
+		assertEquals(loadedHierarchy, context.getHierarchy());
 	}
 
 	@Test
 	public void testGetHierarchyIndex() {
-		fail("Not yet implemented");
+		assertEquals(-1, context.getHierarchyIndex(loadedHierarchy));
+		context.setHierarchy(loadedHierarchy);
+		assertEquals(-1, context.getHierarchyIndex(loadedHierarchy));
+	}
+
+	@Test
+	public void testGetHierarchyList() {
+		assertNotNull(context.getHierarchyList());
 	}
 
 	@Test
 	public void testGetHierarchyOptions() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetCurrentHKWrapper() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetCurrentHKWrapper() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsHKSubprocessActive() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetSelectedRow() {
-		fail("Not yet implemented");
+		assertNotNull(context.getHierarchyOptions());
 	}
 
 	@Test
 	public void testSetSelectedRow() {
-		fail("Not yet implemented");
+		assertEquals(0, context.getSelectedRow());
+		context.setSelectedRow(1);
+		assertEquals(1, context.getSelectedRow());
 	}
 
 	@Test
 	public void testGetHierarchyFrame() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetStatisticsFrame() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetInstanceFrame() {
-		fail("Not yet implemented");
+		assertEquals(null, context.getHierarchyFrame());
+		assertEquals(null, context.getStatisticsFrame());
+		assertEquals(null, context.getInstanceFrame());
+		context.createGUI("1");
+		assertNotNull(context.getHierarchyFrame());
+		assertNotNull(context.getStatisticsFrame());
+		assertNotNull(context.getInstanceFrame());
 	}
 
 	@Test
 	public void testCreateHierarchyVisualization() {
-		fail("Not yet implemented");
+		context.setHierarchy(loadedHierarchy);
+		assertNotNull(context.createHierarchyVisualization());
 	}
 
 	@Test
-	public void testLoadFileWindowFile() {
-		fail("Not yet implemented");
+	public void testGetDimensionReductionMenager() {
+		assertNotNull(context.getDimensionReductionMenager());
 	}
 
 	@Test
-	public void testLoadFileWindowFileBooleanBooleanBooleanBooleanBoolean() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testLoadFileWindowFileOptions() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testLoadHierarchy() {
-		fail("Not yet implemented");
+	public void testIsHierarchyDataLoaded() {
+		assertEquals(true, context.isHierarchyDataLoaded());
 	}
 
 }

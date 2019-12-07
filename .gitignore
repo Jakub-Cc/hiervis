@@ -3,6 +3,7 @@ hk/in.csv
 out/
 bin/
 build/
+.scannerwork/
 *.class
 *.tmp
 *.bak
@@ -29,3 +30,6 @@ hs_err_pid*
 hk/out/summaryResults.csv
 *.csv
 *.json
+/coverage.xml
+/jtests.xml
+/sonar-project.properties

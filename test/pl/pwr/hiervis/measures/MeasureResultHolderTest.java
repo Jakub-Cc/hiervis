@@ -1,6 +1,7 @@
 package pl.pwr.hiervis.measures;
 
 import static org.junit.Assert.fail;
+import static pl.pwr.hiervis.TestConst.NOT_YET_IMPLEMENTED;
 
 import org.junit.Test;
 
@@ -8,62 +9,62 @@ public class MeasureResultHolderTest {
 
 	@Test
 	public void testMeasureResultHolder() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetComputedMeasures() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testIsMeasureComputed() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testIsNodeMeasureComputed() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testForComputedMeasures() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetMeasureResultOrDefaultHierarchyMeasureTaskObject() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetMeasureResultOrDefaultPairOfHierarchyMeasureTaskObject() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetMeasureResultHierarchyMeasureTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetMeasureResultPairOfHierarchyMeasureTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testPutMeasureResultHierarchyMeasureTaskObject() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testPutMeasureResultPairOfHierarchyMeasureTaskObject() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testClear() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 }

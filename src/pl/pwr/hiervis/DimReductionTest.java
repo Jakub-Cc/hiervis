@@ -1,4 +1,4 @@
-package pl.pwr.hiervis.dimension_reduction;
+package pl.pwr.hiervis;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,6 +1,11 @@
-package pl.pwr.hiervis.dimension_reduction.methods;
+package pl.pwr.hiervis.dimension_reduction.methods.feature_extraction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +13,6 @@ import org.junit.Test;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimension_reduction.TestCommon;
 import pl.pwr.hiervis.dimension_reduction.methods.core.FeatureExtraction;
-import pl.pwr.hiervis.dimension_reduction.methods.feature_extraction.StarCoordinates;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class StarCoordinatesTest {
@@ -60,5 +64,22 @@ public class StarCoordinatesTest {
 	@Test
 	public void testSGetDescription() {
 		assertEquals(StarCoordinates.DESCRIPTION, StarCoordinates.sGetDescription());
+	}
+
+	@Test
+	public void testGetParameters() {
+		assertNotNull(dimensionReduction.getParameters());
+		assertTrue(dimensionReduction.getParameters().isEmpty());
+	}
+
+	@Test
+	public void testCreateInstance() {
+		Map<String, Object> parameters = new HashMap<>();
+		assertNotNull(dimensionReduction.createInstance(parameters));
+	}
+
+	@Test
+	public void testGetMinimumMemmory() {
+		assertEquals((Long) 0l, dimensionReduction.getMinimumMemmory(10, 10));
 	}
 }

@@ -1,6 +1,7 @@
 package pl.pwr.hiervis.measures;
 
 import static org.junit.Assert.fail;
+import static pl.pwr.hiervis.TestConst.NOT_YET_IMPLEMENTED;
 
 import org.junit.Test;
 
@@ -8,77 +9,77 @@ public class MeasureManagerTest {
 
 	@Test
 	public void testMeasureManager() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testIsMeasurePending() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testPostTaskMeasureResultHolderHierarchyMeasureTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testPostTaskTripleOfMeasureResultHolderHierarchyMeasureTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testPostAutoComputeTasksFor() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testRemoveTaskHierarchyMeasureTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testRemoveTaskPairOfHierarchyMeasureTask() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testClearPendingTasks() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testLoadMeasureFiles() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetMeasureTaskGroup() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetMeasureTasks() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testGetAllMeasureTasks() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testListMeasureTaskGroups() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testDispose() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 	@Test
 	public void testDumpMeasures() {
-		fail("Not yet implemented");
+		fail(NOT_YET_IMPLEMENTED);
 	}
 
 }
